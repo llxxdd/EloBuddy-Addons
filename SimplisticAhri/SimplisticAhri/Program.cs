@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Enumerations;
@@ -30,6 +31,7 @@ namespace SimplisticAhri
         };
 
         private static Vector3 mousePos { get { return Game.CursorPos; } }
+        public static System.Version Version;
 
         private static readonly Spell.Skillshot SpellE = new Spell.Skillshot(SpellSlot.E, 1000, SkillShotType.Linear,
             250, 1550, 60);
@@ -45,6 +47,7 @@ namespace SimplisticAhri
         private static void Main(string[] args)
         {
             Loading.OnLoadingComplete += Loading_OnLoadingComplete;
+            Version = Assembly.GetExecutingAssembly().GetName().Version;
         }
 
         private static void Loading_OnLoadingComplete(EventArgs args)
@@ -54,6 +57,8 @@ namespace SimplisticAhri
                 Chat.Print("Champion not supported!");
                 return;
             }
+            Chat.Print("<b>Simplistic Ahri</b> - Loaded!");
+            updater.UpdateCheck();
 
             Bootstrap.Init(null);
 
