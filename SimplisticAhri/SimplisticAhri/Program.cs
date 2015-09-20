@@ -164,13 +164,10 @@ namespace SimplisticAhri
             if (KillStealMenu["useKS"].Cast<CheckBox>().CurrentValue)
             {
                 var kstarget = TargetSelector.GetTarget(2500, DamageType.Magical);
-   
-                    Chat.Print("Cur KS Target: " + kstarget);
- 
 
                 if (ComboMenu["useQKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady() &&
-                    kstarget.Distance(_Player) > Spells[SpellSlot.Q].Range &&
-                    kstarget.Health <= (_Player.GetSpellDamage(kstarget, SpellSlot.Q)))
+                    kstarget.Distance(_Player) < Spells[SpellSlot.Q].Range &&
+                    kstarget.Health <= _Player.GetSpellDamage(kstarget, SpellSlot.Q))
                 {
                     Chat.Print("KS Q Try");
                     var predQ = Prediction.Position.PredictLinearMissile(kstarget, Spells[SpellSlot.Q].Range, 50, 250,
@@ -179,8 +176,8 @@ namespace SimplisticAhri
                 }
 
                 if (ComboMenu["useEKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.E].IsReady() &&
-                    kstarget.Distance(_Player) > Spells[SpellSlot.E].Range &&
-                    kstarget.Health < (_Player.GetSpellDamage(kstarget, SpellSlot.E)))
+                    kstarget.Distance(_Player) < Spells[SpellSlot.E].Range &&
+                    kstarget.Health <= (_Player.GetSpellDamage(kstarget, SpellSlot.E)))
                 {
                     Chat.Print("KS E Try");
                     var e = SpellE.GetPrediction(kstarget);
@@ -194,16 +191,16 @@ namespace SimplisticAhri
                 }
 
                 if (ComboMenu["useRKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.R].IsReady() &&
-                    kstarget.Distance(_Player) > 400 &&
-                    kstarget.Health < (_Player.GetSpellDamage(kstarget, SpellSlot.R)))
+                    kstarget.Distance(_Player) < 400 &&
+                    kstarget.Health <= (_Player.GetSpellDamage(kstarget, SpellSlot.R)))
                 {
                     Chat.Print("KS R Try");
                     Spells[SpellSlot.R].Cast(kstarget);
                 }
 
                 if (ComboMenu["useWKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.W].IsReady() &&
-                    kstarget.Distance(_Player) > Spells[SpellSlot.W].Range &&
-                    kstarget.Health < (_Player.GetSpellDamage(kstarget, SpellSlot.W)))
+                    kstarget.Distance(_Player) < Spells[SpellSlot.W].Range &&
+                    kstarget.Health <= (_Player.GetSpellDamage(kstarget, SpellSlot.W)))
                 {
                     Chat.Print("KS W Try");
                     Spells[SpellSlot.W].Cast();
