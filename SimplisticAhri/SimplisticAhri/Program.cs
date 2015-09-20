@@ -80,7 +80,7 @@ namespace SimplisticAhri
             ComboMenu.Add("useWCombo", new CheckBox("Use W"));
             ComboMenu.Add("useECombo", new CheckBox("Use E"));
             ComboMenu.Add("SmartUlt", new CheckBox("Smart R "));
-            ComboMenu.Add("UltInit", new CheckBox("Don't Initiate with R",false));
+            ComboMenu.Add("UltInit", new CheckBox("Don't Initiate with R", false));
             ComboMenu.Add("useCharm", new CheckBox("Smart Charm Combo"));
 
             KillStealMenu = menu.AddSubMenu("Killsteal", "ksAhri");
@@ -164,58 +164,47 @@ namespace SimplisticAhri
             if (KillStealMenu["useKS"].Cast<CheckBox>().CurrentValue)
             {
                 var kstarget = TargetSelector.GetTarget(2500, DamageType.Magical);
-                Chat.Print("KSTarget HP:" + kstarget.Health);
-                var qdmg = kstarget.Health <= _Player.GetSpellDamage(kstarget, SpellSlot.Q);
-                Chat.Print("Q DMG Diff: " + qdmg);
-
-                var wdmg = kstarget.Health <= _Player.GetSpellDamage(kstarget, SpellSlot.W);
-                Chat.Print("W DMG Diff: " + wdmg);
-
-                var edmg = kstarget.Health <= _Player.GetSpellDamage(kstarget, SpellSlot.E);
-                Chat.Print("E DMG Diff: " + edmg);
-
-                var rdmg = kstarget.Health <= _Player.GetSpellDamage(kstarget, SpellSlot.R);
-                Chat.Print("R DMG Diff: " + rdmg);
-
-                if (ComboMenu["useQKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady() &&
-                    kstarget.Distance(_Player) < Spells[SpellSlot.Q].Range &&
-                    kstarget.Health <= _Player.GetSpellDamage(kstarget, SpellSlot.Q))
+                if (kstarget.IsValidTarget(Spells[SpellSlot.E].Range) && kstarget.HealthPercent <= 40)
                 {
-                    Chat.Print("KS Q Try");
-                    var predQ = Prediction.Position.PredictLinearMissile(kstarget, Spells[SpellSlot.Q].Range, 50, 250,
-                        1600, 999);
-                    Spells[SpellSlot.Q].Cast(predQ.CastPosition);
-                }
-
-                if (ComboMenu["useEKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.E].IsReady() &&
-                    kstarget.Distance(_Player) < Spells[SpellSlot.E].Range &&
-                    kstarget.Health <= (_Player.GetSpellDamage(kstarget, SpellSlot.E)))
-                {
-                    Chat.Print("KS E Try");
-                    var e = SpellE.GetPrediction(kstarget);
-                    if (e.HitChance >= HitChance.High)
+                    if (ComboMenu["useQKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady() &&
+                        kstarget.Distance(_Player) < Spells[SpellSlot.Q].Range && Damage(kstarget,SpellSlot.Q) >= kstarget.Health)
                     {
-                        var predE = Prediction.Position.PredictLinearMissile(kstarget, Spells[SpellSlot.E].Range, 60,
+                        Chat.Print("KS Q Try");
+                        var predQ = Prediction.Position.PredictLinearMissile(kstarget, Spells[SpellSlot.Q].Range, 50,
                             250,
-                            1550, 0);
-                        Spells[SpellSlot.E].Cast(predE.CastPosition);
+                            1600, 999);
+                        Spells[SpellSlot.Q].Cast(predQ.CastPosition);
                     }
-                }
 
-                if (ComboMenu["useRKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.R].IsReady() &&
-                    kstarget.Distance(_Player) < 400 &&
-                    kstarget.Health <= (_Player.GetSpellDamage(kstarget, SpellSlot.R)))
-                {
-                    Chat.Print("KS R Try");
-                    Spells[SpellSlot.R].Cast(kstarget);
-                }
+                    if (ComboMenu["useEKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.E].IsReady() &&
+                        kstarget.Distance(_Player) < Spells[SpellSlot.E].Range && Damage(kstarget, SpellSlot.E) >= kstarget.Health)
+                    {
+                        Chat.Print("KS E Try");
+                        var e = SpellE.GetPrediction(kstarget);
+                        if (e.HitChance >= HitChance.High)
+                        {
+                            var predE = Prediction.Position.PredictLinearMissile(kstarget, Spells[SpellSlot.E].Range, 60,
+                                250,
+                                1550, 0);
+                            Spells[SpellSlot.E].Cast(predE.CastPosition);
+                        }
+                    }
 
-                if (ComboMenu["useWKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.W].IsReady() &&
-                    kstarget.Distance(_Player) < Spells[SpellSlot.W].Range &&
-                    kstarget.Health <= (_Player.GetSpellDamage(kstarget, SpellSlot.W)))
-                {
-                    Chat.Print("KS W Try");
-                    Spells[SpellSlot.W].Cast();
+                    if (ComboMenu["useRKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.R].IsReady() &&
+                        kstarget.Distance(_Player) < 400 &&
+                         Damage(kstarget, SpellSlot.R) >= kstarget.Health)
+                    {
+                        Chat.Print("KS R Try");
+                        Spells[SpellSlot.R].Cast(kstarget);
+                    }
+
+                    if (ComboMenu["useWKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.W].IsReady() &&
+                        kstarget.Distance(_Player) < Spells[SpellSlot.W].Range &&
+                        Damage(kstarget, SpellSlot.W) >= kstarget.Health)
+                    {
+                        Chat.Print("KS W Try");
+                        Spells[SpellSlot.W].Cast();
+                    }
                 }
             }
         }
@@ -428,6 +417,39 @@ namespace SimplisticAhri
                 Spells[SpellSlot.Q].Cast(minion);
                 Orbwalker.ForcedTarget = minion;
             }
+        }
+
+        private static float Damage(Obj_AI_Base target, SpellSlot slot)
+        {
+            if (target.IsValidTarget())
+            {
+                if (slot == SpellSlot.Q)
+                {
+                    return
+                        _Player.CalculateDamageOnUnit(target, DamageType.Magical,
+                            (float) 25*Spells[SpellSlot.Q].Level + 15 + 0.35f*_Player.FlatMagicDamageMod) +
+                        _Player.CalculateDamageOnUnit(target, DamageType.True,
+                            (float) 25*Spells[SpellSlot.Q].Level + 15 + 0.35f*_Player.FlatMagicDamageMod);
+                }
+                if (slot == SpellSlot.W)
+                {
+                    return 1.6f*
+                           _Player.CalculateDamageOnUnit(target, DamageType.Magical,
+                               (float) 25*Spells[SpellSlot.W].Level + 15 + 0.4f*_Player.FlatMagicDamageMod);
+                }
+                if (slot == SpellSlot.E)
+                {
+                    return _Player.CalculateDamageOnUnit(target, DamageType.Magical,
+                        (float) 35*Spells[SpellSlot.E].Level + 25 + 0.5f*_Player.FlatMagicDamageMod);
+                }
+                if (slot == SpellSlot.R)
+                {
+                    return 3*
+                           _Player.CalculateDamageOnUnit(target, DamageType.Magical,
+                               (float) 40*Spells[SpellSlot.R].Level + 30 + 0.3f*_Player.FlatMagicDamageMod);
+                }
+            }
+            return _Player.GetSpellDamage(target, slot);
         }
     }
 }
