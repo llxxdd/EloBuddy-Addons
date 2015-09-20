@@ -164,6 +164,18 @@ namespace SimplisticAhri
             if (KillStealMenu["useKS"].Cast<CheckBox>().CurrentValue)
             {
                 var kstarget = TargetSelector.GetTarget(2500, DamageType.Magical);
+                Chat.Print("KSTarget HP:" + kstarget.Health);
+                var qdmg = kstarget.Health <= _Player.GetSpellDamage(kstarget, SpellSlot.Q);
+                Chat.Print("Q DMG Diff: " + qdmg);
+
+                var wdmg = kstarget.Health <= _Player.GetSpellDamage(kstarget, SpellSlot.W);
+                Chat.Print("W DMG Diff: " + wdmg);
+
+                var edmg = kstarget.Health <= _Player.GetSpellDamage(kstarget, SpellSlot.E);
+                Chat.Print("E DMG Diff: " + edmg);
+
+                var rdmg = kstarget.Health <= _Player.GetSpellDamage(kstarget, SpellSlot.R);
+                Chat.Print("R DMG Diff: " + rdmg);
 
                 if (ComboMenu["useQKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady() &&
                     kstarget.Distance(_Player) < Spells[SpellSlot.Q].Range &&
