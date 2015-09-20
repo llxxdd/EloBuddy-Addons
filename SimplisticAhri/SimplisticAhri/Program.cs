@@ -294,6 +294,7 @@ namespace SimplisticAhri
             {
                 Spells[SpellSlot.W].Cast();
             }
+
             HandleRCombo(target);
         }
 
@@ -332,23 +333,29 @@ namespace SimplisticAhri
 
         private static void HandleRCombo(AIHeroClient target)
         {
+            Chat.Print("Handling R");
             if (Spells[SpellSlot.R].IsReady() && ComboMenu["SmartUlt"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.R].IsReady())
             {
+                Chat.Print("Waiting for IF");
                 //User chose not to initiate with R.
                 if (ComboMenu["UltInit"].Cast<CheckBox>().CurrentValue)
                 {
+                    Chat.Print("UltInit");
                     return;
                 }
                 //Neither Q or E are ready in <= 2 seconds and we can't kill the enemy with 1 R stack. Don't use R
                 if ((!Spells[SpellSlot.Q].IsReady(2) && !Spells[SpellSlot.E].IsReady(2)) || !(GetComboDamage(target) >= target.Health + 20))
                 {
+                    Chat.Print("Q E 2 sec");
                     return;
                 }
                 //Set the test position to the Cursor Position
                 var testPosition = Game.CursorPos;
                 //Safety checks
+                Chat.Print("Safety");
                 if (IsSafe(testPosition))
                 {
+                    Chat.Print("Is Safe");
                     Spells[SpellSlot.R].Cast(testPosition);
                 }
             }
