@@ -338,9 +338,9 @@ namespace SimplisticAhri
             {
                 Chat.Print("Waiting for IF");
                 //User chose not to initiate with R.
-                if (!ComboMenu["UltInit"].Cast<CheckBox>().CurrentValue)
+                if (ComboMenu["UltInit"].Cast<CheckBox>().CurrentValue)
                 {
-                    Chat.Print("UltInit");
+                    Chat.Print("Ult Init not checked!");
                     return;
                 }
                 //Neither Q or E are ready in <= 2 seconds and we can't kill the enemy with 1 R stack. Don't use R
