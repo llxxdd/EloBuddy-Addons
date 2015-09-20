@@ -9,6 +9,8 @@ using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 using SharpDX;
+using Version = System.Version;
+
 namespace SimplisticAhri
 {
     internal class Program
@@ -29,14 +31,18 @@ namespace SimplisticAhri
             {SpellSlot.R, 100}
         };
 
-        private static Vector3 mousePos { get { return Game.CursorPos; } }
-        public static System.Version Version;
+        public static Version Version;
 
         private static readonly Spell.Skillshot SpellE = new Spell.Skillshot(SpellSlot.E, 1000, SkillShotType.Linear,
             250, 1550, 60);
 
         public static Menu menu, ComboMenu, HarassMenu, FarmMenu, KillStealMenu, JungleMenu, FleeMenu;
         public static CheckBox SmartMode;
+
+        private static Vector3 mousePos
+        {
+            get { return Game.CursorPos; }
+        }
 
         public static AIHeroClient _Player
         {
@@ -73,6 +79,8 @@ namespace SimplisticAhri
             ComboMenu.Add("useQCombo", new CheckBox("Use Q"));
             ComboMenu.Add("useWCombo", new CheckBox("Use W"));
             ComboMenu.Add("useECombo", new CheckBox("Use E"));
+            ComboMenu.Add("useRCombo", new CheckBox("Smart R Combo"));
+            ComboMenu.Add("UltInit", new CheckBox("Don't Initiate with R"));
             ComboMenu.Add("useCharm", new CheckBox("Smart Charm Combo"));
 
             KillStealMenu = menu.AddSubMenu("Killsteal", "ksAhri");
@@ -99,7 +107,7 @@ namespace SimplisticAhri
             JungleMenu.Add("Mana", new Slider("Min. Mana Percent:", 20, 0, 100));
 
             FleeMenu = menu.AddSubMenu("Flee", "Flee");
-            FleeMenu.Add("R", new CheckBox("Use R", true));
+            FleeMenu.Add("R", new CheckBox("Use R to mousePos", true));
 
             SpellE.AllowedCollisionCount = 0;
             Events.Init();
@@ -236,7 +244,7 @@ namespace SimplisticAhri
         public static void Combo()
         {
             var target = TargetSelector.GetTarget(1550, DamageType.Mixed);
-            var charmed = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Charm));           
+            var charmed = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Charm));
 
             if (target == null) return;
 
@@ -261,18 +269,17 @@ namespace SimplisticAhri
 
             if (ComboMenu["useQCombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady())
             {
-                
-                  var predQ = Prediction.Position.PredictLinearMissile(target, Spells[SpellSlot.Q].Range, 50, 250, 1600,
+                var predQ = Prediction.Position.PredictLinearMissile(target, Spells[SpellSlot.Q].Range, 50, 250, 1600,
                     999);
                 Spells[SpellSlot.Q].Cast(predQ.CastPosition);
-                return; 
-                
+                return;
             }
 
             if (ComboMenu["useWCombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.W].IsReady())
             {
                 Spells[SpellSlot.W].Cast();
             }
+            HandleRCombo(target);
         }
 
         private static void JungleClear()
@@ -300,9 +307,8 @@ namespace SimplisticAhri
             }
         }
 
-        static void Flee()
+        private static void Flee()
         {
-          
             if (FleeMenu["R"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.R].IsReady())
             {
                 Spells[SpellSlot.R].Cast(mousePos);
@@ -311,7 +317,8 @@ namespace SimplisticAhri
 
         private static void HandleRCombo(AIHeroClient target)
         {
-            if (Spells[SpellSlot.R].IsReady() && ComboMenu["SmartUlt"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.R].IsReady())
+            if (Spells[SpellSlot.R].IsReady() && ComboMenu["SmartUlt"].Cast<CheckBox>().CurrentValue &&
+                Spells[SpellSlot.R].IsReady())
             {
                 //User chose not to initiate with R.
                 if (ComboMenu["UltInit"].Cast<CheckBox>().CurrentValue)
@@ -319,7 +326,8 @@ namespace SimplisticAhri
                     return;
                 }
                 //Neither Q or E are ready in <= 2 seconds and we can't kill the enemy with 1 R stack. Don't use R
-                if ((!Spells[SpellSlot.Q].IsReady(2) && !Spells[SpellSlot.E].IsReady(2)) || !(GetComboDamage(target) >= target.Health + 20))
+                if ((!Spells[SpellSlot.Q].IsReady(2) && !Spells[SpellSlot.E].IsReady(2)) ||
+                    !(GetComboDamage(target) >= target.Health + 20))
                 {
                     return;
                 }
@@ -340,7 +348,9 @@ namespace SimplisticAhri
             totalDamage += Spells[SpellSlot.Q].IsReady() ? (_Player.GetSpellDamage(enemy, SpellSlot.Q)) : 0;
             totalDamage += Spells[SpellSlot.W].IsReady() ? (_Player.GetSpellDamage(enemy, SpellSlot.W)) : 0;
             totalDamage += Spells[SpellSlot.E].IsReady() ? (_Player.GetSpellDamage(enemy, SpellSlot.E)) : 0;
-            totalDamage += (Spells[SpellSlot.R].IsReady() || (RStacks() != 0)) ? (_Player.GetSpellDamage(enemy, SpellSlot.R)) : 0;
+            totalDamage += (Spells[SpellSlot.R].IsReady() || (RStacks() != 0))
+                ? (_Player.GetSpellDamage(enemy, SpellSlot.R))
+                : 0;
             return totalDamage;
         }
 
@@ -365,8 +375,5 @@ namespace SimplisticAhri
             }
             return myVector.CountEnemiesInRange(600f) - killableEnemyPlayerNumber >= 0;
         }
-
-    
     }
-
 }
