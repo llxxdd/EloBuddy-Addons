@@ -79,8 +79,8 @@ namespace SimplisticAhri
             ComboMenu.Add("useQCombo", new CheckBox("Use Q"));
             ComboMenu.Add("useWCombo", new CheckBox("Use W"));
             ComboMenu.Add("useECombo", new CheckBox("Use E"));
-            ComboMenu.Add("useRCombo", new CheckBox("Smart R Combo"));
-            ComboMenu.Add("UltInit", new CheckBox("Don't Initiate with R"));
+            ComboMenu.Add("SmartUlt", new CheckBox("Smart R "));
+            ComboMenu.Add("UltInit", new CheckBox("Don't Initiate with R",false));
             ComboMenu.Add("useCharm", new CheckBox("Smart Charm Combo"));
 
             KillStealMenu = menu.AddSubMenu("Killsteal", "ksAhri");
@@ -97,8 +97,11 @@ namespace SimplisticAhri
 
             FarmMenu = menu.AddSubMenu("Farm", "FarmAhri");
             FarmMenu.AddLabel("Coming Soon");
-            // FarmMenu.Add("useQFarm", new CheckBox("Use Q"));
-            // FarmMenu.Add("useWFarm", new CheckBox("Use W"));
+            FarmMenu.Add("qlh", new CheckBox("Use Q LastHit"));
+            FarmMenu.Add("qlc", new CheckBox("Use Q LaneClear"));
+            FarmMenu.Add("wlc", new CheckBox("Use W LaneClear"));
+            FarmMenu.Add("elc", new CheckBox("Use E LaneClear"));
+            FarmMenu.Add("Mana", new Slider("Min. Mana Percent:", 20, 0, 100));
 
             JungleMenu = menu.AddSubMenu("JungleClear", "JungleClear");
             JungleMenu.Add("Q", new CheckBox("Use Q", true));
@@ -125,10 +128,14 @@ namespace SimplisticAhri
             Orbwalker.ForcedTarget = null;
             if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo)) Combo();
             else if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass)) Harass();
-            else if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear)) WaveClear();
+            else if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LastHit)) LastHit();
+            else if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear))
+            {
+                WaveClear();
+                JungleClear();
+            }
             else if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Flee)) Flee();
             KillSteal();
-            JungleClear();
         }
 
         public static void WaveClear()
@@ -147,6 +154,9 @@ namespace SimplisticAhri
                             a.Health <= _Player.GetAutoAttackDamage(a)*1.1);
             var minion = minions.OrderByDescending(a => minions2.Count(b => b.Distance(a) <= 200)).FirstOrDefault();
             Orbwalker.ForcedTarget = minion;
+            if (FarmMenu["qlc"].Cast<CheckBox>().CurrentValue) Spells[SpellSlot.Q].Cast(minion);
+            if (FarmMenu["wlc"].Cast<CheckBox>().CurrentValue) Spells[SpellSlot.W].Cast(minion);
+            if (FarmMenu["elc"].Cast<CheckBox>().CurrentValue) Spells[SpellSlot.W].Cast(minion);
         }
 
         public static void KillSteal()
@@ -155,12 +165,6 @@ namespace SimplisticAhri
             {
                 var kstarget = TargetSelector.GetTarget(2500, DamageType.Magical);
 
-                if (ComboMenu["useRKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.R].IsReady() &&
-                    kstarget.Distance(_Player) > 400 &&
-                    kstarget.Health < (_Player.GetSpellDamage(kstarget, SpellSlot.R)) || Spells[SpellSlot.R].IsReady())
-                {
-                    Spells[SpellSlot.R].Cast(kstarget);
-                }
 
                 if (ComboMenu["useQKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady() &&
                     kstarget.Distance(_Player) > Spells[SpellSlot.Q].Range &&
@@ -169,13 +173,6 @@ namespace SimplisticAhri
                     var predQ = Prediction.Position.PredictLinearMissile(kstarget, Spells[SpellSlot.Q].Range, 50, 250,
                         1600, 999);
                     Spells[SpellSlot.Q].Cast(predQ.CastPosition);
-                }
-
-                if (ComboMenu["useWKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.W].IsReady() &&
-                    kstarget.Distance(_Player) > Spells[SpellSlot.W].Range &&
-                    kstarget.Health < (_Player.GetSpellDamage(kstarget, SpellSlot.W)) || Spells[SpellSlot.W].IsReady())
-                {
-                    Spells[SpellSlot.W].Cast();
                 }
 
                 if (ComboMenu["useEKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.E].IsReady() &&
@@ -190,6 +187,20 @@ namespace SimplisticAhri
                             1550, 0);
                         Spells[SpellSlot.E].Cast(predE.CastPosition);
                     }
+                }
+
+                if (ComboMenu["useRKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.R].IsReady() &&
+                    kstarget.Distance(_Player) > 400 &&
+                    kstarget.Health < (_Player.GetSpellDamage(kstarget, SpellSlot.R)) || Spells[SpellSlot.R].IsReady())
+                {
+                    Spells[SpellSlot.R].Cast(kstarget);
+                }
+
+                if (ComboMenu["useWKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.W].IsReady() &&
+                    kstarget.Distance(_Player) > Spells[SpellSlot.W].Range &&
+                    kstarget.Health < (_Player.GetSpellDamage(kstarget, SpellSlot.W)) || Spells[SpellSlot.W].IsReady())
+                {
+                    Spells[SpellSlot.W].Cast();
                 }
             }
         }
@@ -374,6 +385,34 @@ namespace SimplisticAhri
                 return true;
             }
             return myVector.CountEnemiesInRange(600f) - killableEnemyPlayerNumber >= 0;
+        }
+
+        private static void LastHit()
+        {
+            if (ObjectManager.Player.ManaPercent < FarmMenu["Mana"].Cast<Slider>().CurrentValue)
+            {
+                return;
+            }
+            if (FarmMenu["qlh"].Cast<CheckBox>().CurrentValue)
+            {
+                var minions =
+                    ObjectManager.Get<Obj_AI_Base>()
+                        .Where(
+                            a =>
+                                a.IsEnemy && a.Distance(_Player) <= Spells[SpellSlot.Q].Range &&
+                                a.Health <= _Player.GetSpellDamage(a, SpellSlot.Q)*1.1);
+
+                var minions2 =
+                    ObjectManager.Get<Obj_AI_Base>()
+                        .Where(
+                            a =>
+                                a.IsEnemy && a.Distance(_Player) <= Spells[SpellSlot.Q].Range &&
+                                a.Health <= _Player.GetSpellDamage(a, SpellSlot.Q)*1.1);
+
+                var minion = minions.OrderByDescending(a => minions2.Count(b => b.Distance(a) <= 200)).FirstOrDefault();
+                Spells[SpellSlot.Q].Cast(minion);
+                Orbwalker.ForcedTarget = minion;
+            }
         }
     }
 }
