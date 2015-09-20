@@ -338,7 +338,7 @@ namespace SimplisticAhri
             {
                 Chat.Print("Waiting for IF");
                 //User chose not to initiate with R.
-                if (ComboMenu["UltInit"].Cast<CheckBox>().CurrentValue)
+                if (!ComboMenu["UltInit"].Cast<CheckBox>().CurrentValue)
                 {
                     Chat.Print("UltInit");
                     return;
