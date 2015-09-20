@@ -41,6 +41,10 @@ namespace SimplisticAhri
                                 {
                                     Chat.Print("<b>SimplisticAhri</b> - <font color=\"#FF6666\">Outdated & newer version available!</font>");
                                 }
+                                else
+                                {
+                                    Chat.Print("<b>SimplisticAhri</b> - <font color=\"#FF6666\">You have got the newest Version!</font>");
+                                }
                             }
                         }
                     }
