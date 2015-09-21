@@ -17,11 +17,13 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>..\..\..\..\..\Desktop\Elobuddy\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -34,16 +36,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EloBuddy">
-      <HintPath>D:\Downloads\EloBuddy\Core\5.18\EloBuddy.dll</HintPath>
+      <HintPath>D:\Downloads\EloBuddy\Loader\System\EloBuddy.dll</HintPath>
     </Reference>
     <Reference Include="EloBuddy.SDK">
-      <HintPath>D:\Downloads\EloBuddy\System\EloBuddy.SDK.dll</HintPath>
+      <HintPath>D:\Downloads\EloBuddy\Loader\System\EloBuddy.SDK.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
-      <HintPath>D:\Downloads\EloBuddy\System\SharpDX.dll</HintPath>
+      <HintPath>D:\Downloads\EloBuddy\Loader\System\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D9">
-      <HintPath>D:\Downloads\EloBuddy\System\SharpDX.Direct3D9.dll</HintPath>
+      <HintPath>D:\Downloads\EloBuddy\Loader\System\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />

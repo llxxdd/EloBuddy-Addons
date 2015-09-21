@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Enumerations;
@@ -144,7 +143,7 @@ namespace SimplisticAhri
 
             SpellE.AllowedCollisionCount = 0;
             Game.OnTick += Game_OnTick;
-            Gapcloser.OnGapCloser += Gapcloser_OnGapCloser;
+            Gapcloser.OnGapcloser += Gapcloser_OnGapCloser;
             Interrupter.OnInterruptableSpell += Interrupter_OnInterruptableSpell;
         }
 
@@ -163,7 +162,7 @@ namespace SimplisticAhri
             KillSteal();
         }
 
-        private static void Gapcloser_OnGapCloser(AIHeroClient sender, Gapcloser.GapCloserEventArgs gapcloser)
+        private static void Gapcloser_OnGapCloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs gapcloser)
         {
             if (!GapMenu["GapE"].Cast<CheckBox>().CurrentValue) return;
             if (ObjectManager.Player.Distance(gapcloser.Sender, true) <
@@ -173,7 +172,7 @@ namespace SimplisticAhri
             }
         }
 
-        private static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender, InterruptableSpellEventArgs args)
+        private static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender, Interrupter.InterruptableSpellEventArgs args)
         {
             if (!GapMenu["IntE"].Cast<CheckBox>().CurrentValue) return;
 

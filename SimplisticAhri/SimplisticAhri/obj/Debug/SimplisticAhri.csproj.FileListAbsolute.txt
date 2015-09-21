@@ -6,6 +6,6 @@ C:\Users\Noor\Documents\EloBuddy\JinxBuddy\JinxBuddy\obj\Debug\SimplisticAhri.pd
 C:\Users\Noor\Documents\EloBuddy\JinxBuddy\SimplisticAhri\obj\Debug\SimplisticAhri.csprojResolveAssemblyReference.cache
 C:\Users\Noor\Documents\EloBuddy\JinxBuddy\SimplisticAhri\obj\Debug\SimplisticAhri.exe
 C:\Users\Noor\Documents\EloBuddy\JinxBuddy\SimplisticAhri\obj\Debug\SimplisticAhri.pdb
-C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticAhri\SimplisticAhri\obj\Debug\SimplisticAhri.csprojResolveAssemblyReference.cache
 C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticAhri\SimplisticAhri\obj\Debug\SimplisticAhri.exe
 C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticAhri\SimplisticAhri\obj\Debug\SimplisticAhri.pdb
+C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticAhri\SimplisticAhri\obj\Debug\SimplisticAhri.csprojResolveAssemblyReference.cache
