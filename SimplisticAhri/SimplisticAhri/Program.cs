@@ -9,58 +9,53 @@ using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 using SharpDX;
-using Version = System.Version;
 
 namespace SimplisticAhri
 {
     internal class Program
     {
-        public static Dictionary<SpellSlot, Spell.SpellBase> Spells = new Dictionary<SpellSlot, Spell.SpellBase>
+        private static Dictionary<SpellSlot, Spell.SpellBase> spells = new Dictionary<SpellSlot, Spell.SpellBase>
         {
-            {
-                SpellSlot.Q, new Spell.Skillshot(SpellSlot.Q, 1000, SkillShotType.Linear, 250, 1600, 50)
-            },
-            {
-                SpellSlot.W, new Spell.Active(SpellSlot.W, 700)
-            },
-            {
-                SpellSlot.E, new Spell.Skillshot(SpellSlot.E, 1000, SkillShotType.Linear, 250, 1550, 60)
-            },
-            {
-                SpellSlot.R, new Spell.Skillshot(SpellSlot.R, 900, SkillShotType.Linear, 250)
-            }
+            {SpellSlot.Q, new Spell.Skillshot(SpellSlot.Q, 1000, SkillShotType.Linear, 250, 1600, 50)},
+            {SpellSlot.W, new Spell.Active(SpellSlot.W, 700)},
+            {SpellSlot.E, new Spell.Skillshot(SpellSlot.E, 1000, SkillShotType.Linear, 250, 1550, 60)},
+            {SpellSlot.R, new Spell.Skillshot(SpellSlot.R, 900, SkillShotType.Linear, 250)}
         };
 
-        public static Dictionary<SpellSlot, int> Mana = new Dictionary<SpellSlot, int>
+
+        private static Dictionary<string, object> _Q = new Dictionary<string, object>()
         {
-            {
-                SpellSlot.Q, new[]
-                {
-                    65, 70, 75, 80, 85
-                }[Spells[SpellSlot.Q].IsLearned ? Spells[SpellSlot.Q].Level - 1 : 0]
-            },
-            {
-                SpellSlot.W, 50
-            },
-            {
-                SpellSlot.E, 85
-            },
-            {
-                SpellSlot.R, 100
-            }
+            {"MinSpeed", 400},
+            {"MaxSpeed", 2500},
+            {"Acceleration", -3200},
+            {"Speed1", 1400},
+            {"Delay1", 250},
+            {"Range1", 880},
+            {"Delay2", 0},
+            {"Range2", int.MaxValue},
+            {"IsReturning", false},
+            {"Target", null},
+            {"Object", null},
+            {"LastObjectVector", null},
+            {"LastObjectVectorTime", null},
+            {"CatchPosition", null}
         };
 
-        public static Version Version;
+        private static Dictionary<string, object> _E = new Dictionary<string, object>()
+        {
+            {"LastCastTime", 0f},
+            {"Object", null},
+        };
+
+        private static Dictionary<string, object> _R = new Dictionary<string, object>() {{"EndTime", 0f},};
 
         private static readonly Spell.Skillshot SpellE = new Spell.Skillshot(SpellSlot.E, 1000, SkillShotType.Linear,
             250, 1550, 60);
 
+
         public static Menu menu, ComboMenu, HarassMenu, FarmMenu, KillStealMenu, JungleMenu, FleeMenu, GapMenu;
         public static CheckBox SmartMode;
 
-        private static Dictionary<string, object> _Q = new Dictionary<string, object>() { { "MinSpeed", 400 }, { "MaxSpeed", 2500 }, { "Acceleration", -3200 }, { "Speed1", 1400 }, { "Delay1", 250 }, { "Range1", 880 }, { "Delay2", 0 }, { "Range2", int.MaxValue }, { "IsReturning", false }, { "Target", null }, { "Object", null }, { "LastObjectVector", null }, { "LastObjectVectorTime", null }, { "CatchPosition", null } };
-        private static Dictionary<string, object> _E = new Dictionary<string, object>() { { "LastCastTime", 0f }, { "Object", null }, };
-        private static Dictionary<string, object> _R = new Dictionary<string, object>() { { "EndTime", 0f }, };
         private static Vector3 mousePos
         {
             get { return Game.CursorPos; }
@@ -71,10 +66,21 @@ namespace SimplisticAhri
             get { return ObjectManager.Player; }
         }
 
+        public static Dictionary<SpellSlot, Spell.SpellBase> Spells
+        {
+            get { return spells; }
+            set { spells = value; }
+        }
+
+        public static Dictionary<SpellSlot, Spell.SpellBase> Spells1
+        {
+            get { return spells; }
+            set { spells = value; }
+        }
+
         private static void Main(string[] args)
         {
             Loading.OnLoadingComplete += Loading_OnLoadingComplete;
-            Version = Assembly.GetExecutingAssembly().GetName().Version;
         }
 
         private static void Loading_OnLoadingComplete(EventArgs args)
@@ -100,12 +106,13 @@ namespace SimplisticAhri
             ComboMenu.Add("useQCombo", new CheckBox("Use Q"));
             ComboMenu.Add("useWCombo", new CheckBox("Use W"));
             ComboMenu.Add("useECombo", new CheckBox("Use E"));
-            ComboMenu.Add("SmartUlt", new CheckBox("Smart R "));
-            ComboMenu.Add("UltInit", new CheckBox("Don't Initiate with R", false));
-            ComboMenu.Add("useCharm", new CheckBox("Smart Charm Combo"));
+            ComboMenu.Add("SmartUlt", new CheckBox("Use Smart R"));
+            ComboMenu.Add("useCharm", new CheckBox("Smart Target"));
+            ComboMenu.Add("waitAA", new CheckBox("wait for AA to finish", false));
 
             KillStealMenu = menu.AddSubMenu("Killsteal", "ksAhri");
-            KillStealMenu.Add("useKS", new CheckBox("Killsteal on?"));
+            KillStealMenu.Add("useKS", new CheckBox("Killsteal"));
+            KillStealMenu.AddLabel("Check Killsteal to turn this Feature on.");
             KillStealMenu.Add("useQKS", new CheckBox("Use Q for KS"));
             KillStealMenu.Add("useWKS", new CheckBox("Use W for KS"));
             KillStealMenu.Add("useEKS", new CheckBox("Use E for KS"));
@@ -115,9 +122,9 @@ namespace SimplisticAhri
             HarassMenu.Add("useQHarass", new CheckBox("Use Q"));
             HarassMenu.Add("useWHarass", new CheckBox("Use W"));
             HarassMenu.Add("useEHarass", new CheckBox("Use E"));
+            HarassMenu.Add("waitAA", new CheckBox("wait for AA to finish", false));
 
             FarmMenu = menu.AddSubMenu("Farm", "FarmAhri");
-            FarmMenu.AddLabel("Coming Soon");
             FarmMenu.Add("qlh", new CheckBox("Use Q LastHit"));
             FarmMenu.Add("Mana", new Slider("Min. Mana Percent:", 20, 0, 100));
 
@@ -156,20 +163,21 @@ namespace SimplisticAhri
             KillSteal();
         }
 
-        static void Gapcloser_OnGapCloser(AIHeroClient sender, Gapcloser.GapCloserEventArgs gapcloser)
+        private static void Gapcloser_OnGapCloser(AIHeroClient sender, Gapcloser.GapCloserEventArgs gapcloser)
         {
             if (!GapMenu["GapE"].Cast<CheckBox>().CurrentValue) return;
-            if (ObjectManager.Player.Distance(gapcloser.Sender, true) < Spells[SpellSlot.E].Range * Spells[SpellSlot.E].Range)
+            if (ObjectManager.Player.Distance(gapcloser.Sender, true) <
+                Spells[SpellSlot.E].Range*Spells[SpellSlot.E].Range)
             {
                 Spells[SpellSlot.E].Cast(gapcloser.Sender);
             }
         }
 
-        static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender, InterruptableSpellEventArgs args)
+        private static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender, InterruptableSpellEventArgs args)
         {
             if (!GapMenu["IntE"].Cast<CheckBox>().CurrentValue) return;
 
-            if (ObjectManager.Player.Distance(sender, true) < Spells[SpellSlot.E].Range * Spells[SpellSlot.E].Range)
+            if (ObjectManager.Player.Distance(sender, true) < Spells[SpellSlot.E].Range*Spells[SpellSlot.E].Range)
             {
                 Spells[SpellSlot.E].Cast(sender);
             }
@@ -181,12 +189,12 @@ namespace SimplisticAhri
                 .Where(
                     a =>
                         a.IsEnemy && a.Distance(_Player) <= _Player.AttackRange &&
-                        a.Health <= _Player.GetAutoAttackDamage(a) * 1.1);
+                        a.Health <= _Player.GetAutoAttackDamage(a)*1.1);
             var minions2 = ObjectManager.Get<Obj_AI_Base>()
                 .Where(
                     a =>
                         a.IsEnemy && a.Distance(_Player) <= _Player.AttackRange &&
-                        a.Health <= _Player.GetAutoAttackDamage(a) * 1.1);
+                        a.Health <= _Player.GetAutoAttackDamage(a)*1.1);
             var minion = minions.OrderByDescending(a => minions2.Count(b => b.Distance(a) <= 200)).FirstOrDefault();
             Orbwalker.ForcedTarget = minion;
         }
@@ -241,11 +249,11 @@ namespace SimplisticAhri
 
         public static void Harass()
         {
-            var target = TargetSelector.GetTarget(1550, DamageType.Physical);
+            var target = TargetSelector.GetTarget(1550, DamageType.Magical);
 
             if (target == null) return;
 
-            if (Orbwalker.IsAutoAttacking) return;
+            if (Orbwalker.IsAutoAttacking && HarassMenu["waitAA"].Cast<CheckBox>().CurrentValue) return;
 
             if (HarassMenu["useQHarass"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady())
             {
@@ -292,18 +300,15 @@ namespace SimplisticAhri
             var charmed = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Charm));
             var cc = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Fear));
 
-            if (target == null) return;
-
-            if (Orbwalker.IsAutoAttacking) return;
+            if (Orbwalker.IsAutoAttacking && HarassMenu["waitAA"].Cast<CheckBox>().CurrentValue) return;
 
             if (ComboMenu["useCharm"].Cast<CheckBox>().CurrentValue && charmed != null)
             {
                 target = charmed;
-            } else if (ComboMenu["useCharm"].Cast<CheckBox>().CurrentValue && charmed == null && cc != null)
+            }
+            else if (ComboMenu["useCharm"].Cast<CheckBox>().CurrentValue && charmed == null && cc != null)
             {
-
                 target = cc;
-
             }
             else
             {
@@ -378,14 +383,15 @@ namespace SimplisticAhri
         {
             if (Spells[SpellSlot.R].IsReady() && target.IsValidTarget())
             {
-                
                 if (ComboMenu["SmartUlt"].Cast<CheckBox>().CurrentValue)
                 {
-                    if ((float)_R["EndTime"] > ((float)0))
-                    { 
+                    if ((float) _R["EndTime"] > ((float) 0))
+                    {
                         if (_Q["Object"] != null)
                         {
-                            if ((bool)_Q["IsReturning"] && Extensions.Distance(_Player, (GameObject)_Q["Object"]) < Extensions.Distance(_Player, (Obj_AI_Base)_Q["Target"]))
+                            if ((bool) _Q["IsReturning"] &&
+                                Extensions.Distance(_Player, (GameObject) _Q["Object"]) <
+                                Extensions.Distance(_Player, (Obj_AI_Base) _Q["Target"]))
                             {
                                 Spells[SpellSlot.R].Cast(mousePos);
                             }
@@ -394,18 +400,20 @@ namespace SimplisticAhri
                                 return;
                             }
                         }
-                        if (!Spells[SpellSlot.Q].IsReady() && (float)_R["EndTime"] - Game.Time <= _Player.Spellbook.GetSpell(Spells[SpellSlot.R].Slot).Cooldown)
+                        if (!Spells[SpellSlot.Q].IsReady() &&
+                            (float) _R["EndTime"] - Game.Time <=
+                            _Player.Spellbook.GetSpell(Spells[SpellSlot.R].Slot).Cooldown)
                         {
                             Spells[SpellSlot.R].Cast(mousePos);
                         }
                     }
-                    if (GetComboDamage(target) >= target.Health && Extensions.Distance(mousePos, target) < Extensions.Distance(_Player, target))
+                    if (GetComboDamage(target) >= target.Health &&
+                        Extensions.Distance(mousePos, target) < Extensions.Distance(_Player, target))
                     {
-
-                            if (Extensions.Distance(_Player, target) > 400)
-                            {
-                                Spells[SpellSlot.R].Cast(mousePos);
-                            }
+                        if (Extensions.Distance(_Player, target) > 400)
+                        {
+                            Spells[SpellSlot.R].Cast(mousePos);
+                        }
                     }
                 }
                 else
@@ -416,14 +424,14 @@ namespace SimplisticAhri
         }
 
 
-        public static float GetComboDamage(AIHeroClient enemy)
+        public static float GetComboDamage(AIHeroClient target)
         {
             float totalDamage = 0;
-            totalDamage += Spells[SpellSlot.Q].IsReady() ? (_Player.GetSpellDamage(enemy, SpellSlot.Q)) : 0;
-            totalDamage += Spells[SpellSlot.W].IsReady() ? (_Player.GetSpellDamage(enemy, SpellSlot.W)) : 0;
-            totalDamage += Spells[SpellSlot.E].IsReady() ? (_Player.GetSpellDamage(enemy, SpellSlot.E)) : 0;
+            totalDamage += Spells[SpellSlot.Q].IsReady() ? (_Player.GetSpellDamage(target, SpellSlot.Q)) : 0;
+            totalDamage += Spells[SpellSlot.W].IsReady() ? (_Player.GetSpellDamage(target, SpellSlot.W)) : 0;
+            totalDamage += Spells[SpellSlot.E].IsReady() ? (_Player.GetSpellDamage(target, SpellSlot.E)) : 0;
             totalDamage += (Spells[SpellSlot.R].IsReady() || (RStacks() != 0))
-                ? (_Player.GetSpellDamage(enemy, SpellSlot.R))
+                ? (_Player.GetSpellDamage(target, SpellSlot.R))
                 : 0;
             return totalDamage;
         }
@@ -441,20 +449,20 @@ namespace SimplisticAhri
             {
                 return;
             }
-                var minions = ObjectManager.Get<Obj_AI_Base>()
-                    .Where(
-                        a =>
-                            a.IsEnemy && a.Distance(_Player) <= Spells[SpellSlot.Q].Range &&
-                            a.Health <= _Player.GetSpellDamage(a, SpellSlot.Q) * 1.1);
+            var minions = ObjectManager.Get<Obj_AI_Base>()
+                .Where(
+                    a =>
+                        a.IsEnemy && a.Distance(_Player) <= Spells[SpellSlot.Q].Range &&
+                        a.Health <= _Player.GetSpellDamage(a, SpellSlot.Q)*1.1);
 
-                var minions2 = ObjectManager.Get<Obj_AI_Base>()
-                    .Where(
-                        a =>
-                            a.IsEnemy && a.Distance(_Player) <= Spells[SpellSlot.Q].Range &&
-                            a.Health <= _Player.GetSpellDamage(a, SpellSlot.Q) * 1.1);
+            var minions2 = ObjectManager.Get<Obj_AI_Base>()
+                .Where(
+                    a =>
+                        a.IsEnemy && a.Distance(_Player) <= Spells[SpellSlot.Q].Range &&
+                        a.Health <= _Player.GetSpellDamage(a, SpellSlot.Q)*1.1);
 
-                var minion = minions.OrderByDescending(a => minions2.Count(b => b.Distance(a) <= 200)).FirstOrDefault();
-                Orbwalker.ForcedTarget = minion;
+            var minion = minions.OrderByDescending(a => minions2.Count(b => b.Distance(a) <= 200)).FirstOrDefault();
+            Orbwalker.ForcedTarget = minion;
         }
 
         private static float Damage(Obj_AI_Base target, SpellSlot slot)
@@ -465,39 +473,39 @@ namespace SimplisticAhri
                 {
                     return
                         _Player.CalculateDamageOnUnit(target, DamageType.Magical,
-                            (float)25 * Spells[SpellSlot.Q].Level + 15 + 0.35f * _Player.FlatMagicDamageMod) +
+                            (float) 25*Spells[SpellSlot.Q].Level + 15 + 0.35f*_Player.FlatMagicDamageMod) +
                         _Player.CalculateDamageOnUnit(target, DamageType.True,
-                            (float)25 * Spells[SpellSlot.Q].Level + 15 + 0.35f * _Player.FlatMagicDamageMod);
+                            (float) 25*Spells[SpellSlot.Q].Level + 15 + 0.35f*_Player.FlatMagicDamageMod);
                 }
                 if (slot == SpellSlot.W)
                 {
-                    return 1.6f *
+                    return 1.6f*
                            _Player.CalculateDamageOnUnit(target, DamageType.Magical,
-                               (float)25 * Spells[SpellSlot.W].Level + 15 + 0.4f * _Player.FlatMagicDamageMod);
+                               (float) 25*Spells[SpellSlot.W].Level + 15 + 0.4f*_Player.FlatMagicDamageMod);
                 }
                 if (slot == SpellSlot.E)
                 {
                     return _Player.CalculateDamageOnUnit(target, DamageType.Magical,
-                        (float)35 * Spells[SpellSlot.E].Level + 25 + 0.5f * _Player.FlatMagicDamageMod);
+                        (float) 35*Spells[SpellSlot.E].Level + 25 + 0.5f*_Player.FlatMagicDamageMod);
                 }
                 if (slot == SpellSlot.R)
                 {
-                    return 3 *
+                    return 3*
                            _Player.CalculateDamageOnUnit(target, DamageType.Magical,
-                               (float)40 * Spells[SpellSlot.R].Level + 30 + 0.3f * _Player.FlatMagicDamageMod);
+                               (float) 40*Spells[SpellSlot.R].Level + 30 + 0.3f*_Player.FlatMagicDamageMod);
                 }
             }
             return _Player.GetSpellDamage(target, slot);
         }
 
-        static void OnCreateObj(EloBuddy.GameObject sender, EventArgs args)
+        private static void OnCreateObj(EloBuddy.GameObject sender, EventArgs args)
         {
-            var missile = (MissileClient)sender;
+            var missile = (MissileClient) sender;
             if (missile == null || !missile.IsValid || missile.SpellCaster == null || !missile.SpellCaster.IsValid)
             {
                 return;
             }
-            var unit = (Obj_AI_Base)missile.SpellCaster;
+            var unit = (Obj_AI_Base) missile.SpellCaster;
             if (missile.SpellCaster.IsMe)
             {
                 var name = missile.SData.Name.ToLower();
@@ -518,14 +526,14 @@ namespace SimplisticAhri
             }
         }
 
-        static void OnDeleteObj(GameObject sender, EventArgs args)
+        private static void OnDeleteObj(GameObject sender, EventArgs args)
         {
-            var missile = (MissileClient)sender;
+            var missile = (MissileClient) sender;
             if (missile == null || !missile.IsValid || missile.SpellCaster == null || !missile.SpellCaster.IsValid)
             {
                 return;
             }
-            var unit = (Obj_AI_Base)missile.SpellCaster;
+            var unit = (Obj_AI_Base) missile.SpellCaster;
             if (missile.SpellCaster.IsMe)
             {
                 var name = missile.SData.Name.ToLower();
