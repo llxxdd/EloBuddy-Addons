@@ -177,7 +177,6 @@ namespace SimplisticAhri
                 {
                     if (KillStealMenu["useQKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady() && kstarget.Distance(_Player) < Spells[SpellSlot.Q].Range && Damage(kstarget, SpellSlot.Q) >= kstarget.Health)
                     {
-                        Chat.Print("KS Q Try");
                         var predQ = Prediction.Position.PredictLinearMissile(kstarget, Spells[SpellSlot.Q].Range, 50,
                         250,
                         1600, 999);
@@ -186,7 +185,6 @@ namespace SimplisticAhri
 
                     if (KillStealMenu["useEKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.E].IsReady() && kstarget.Distance(_Player) < Spells[SpellSlot.E].Range && Damage(kstarget, SpellSlot.E) >= kstarget.Health)
                     {
-                        Chat.Print("KS E Try");
                         var e = SpellE.GetPrediction(kstarget);
                         if (e.HitChance >= HitChance.High)
                         {
@@ -199,13 +197,11 @@ namespace SimplisticAhri
 
                     if (KillStealMenu["useRKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.R].IsReady() && kstarget.Distance(_Player) < 400 && Damage(kstarget, SpellSlot.R) >= kstarget.Health)
                     {
-                        Chat.Print("KS R Try");
                         Spells[SpellSlot.R].Cast(kstarget);
                     }
 
                     if (KillStealMenu["useWKS"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.W].IsReady() && kstarget.Distance(_Player) < Spells[SpellSlot.W].Range && Damage(kstarget, SpellSlot.W) >= kstarget.Health)
                     {
-                        Chat.Print("KS W Try");
                         Spells[SpellSlot.W].Cast();
                     }
                 }
@@ -335,31 +331,22 @@ namespace SimplisticAhri
         {
             if (Spells[SpellSlot.R].IsReady() && ComboMenu["SmartUlt"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.R].IsReady())
             {
-                Chat.Print("Waiting for IF");
                 //User chose not to initiate with R.
                 if (ComboMenu["UltInit"].Cast<CheckBox>().CurrentValue)
                 {
-                    Chat.Print("Ult Init not checked! Aborting");
                     return;
                 }
                 //Neither Q or E are ready in <= 2 seconds and we can't kill the enemy with 1 R stack. Don't use R
-                if ((!Spells[SpellSlot.Q].IsReady(2) && !Spells[SpellSlot.E].IsReady(2)) || !(GetComboDamage(target) >= target.Health + 20))
+                if ((!Spells[SpellSlot.Q].IsReady() && !Spells[SpellSlot.E].IsReady()) || !(GetComboDamage(target) >= target.Health + 20))
                 {
-                    Chat.Print("Q E 2 sec");
+                    Chat.Print("RETURN");
                     return;
                 }
-                //Set the test position to the Cursor Position
-                var testPosition = Game.CursorPos;
-                //Safety checks
-                Chat.Print("Safety");
-                if (IsSafe(testPosition))
-                {
-                    Chat.Print("Is Safe");
-                    Spells[SpellSlot.R].Cast(testPosition);
-                }
-            }
-        }
 
+                    Chat.Print("CALC");
+                    Spells[SpellSlot.R].Cast(target);
+                }
+            } 
 
         public static float GetComboDamage(AIHeroClient enemy)
         {
