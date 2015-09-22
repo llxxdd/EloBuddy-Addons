@@ -16,9 +16,9 @@ namespace SimplisticAhri
         private static Dictionary<SpellSlot, Spell.SpellBase> spells = new Dictionary<SpellSlot, Spell.SpellBase>
         {
             {SpellSlot.Q, new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, 250, 1400, 90)},
-            {SpellSlot.W, new Spell.Skillshot(SpellSlot.W, 550, SkillShotType.Circular, 250 , 1200, 300)},
+            {SpellSlot.W, new Spell.Skillshot(SpellSlot.W, 550, SkillShotType.Circular, 250, 1200, 300)},
             {SpellSlot.E, new Spell.Skillshot(SpellSlot.E, 970, SkillShotType.Linear, 300, 1500, 60)},
-            {SpellSlot.R, new Spell.Skillshot(SpellSlot.R, 850, SkillShotType.Circular,250,1400,250)}
+            {SpellSlot.R, new Spell.Skillshot(SpellSlot.R, 850, SkillShotType.Circular, 250, 1400, 250)}
         };
 
 
@@ -55,8 +55,17 @@ namespace SimplisticAhri
             1400, 90);
 
 
+        public static Menu menu,
+            ComboMenu,
+            HarassMenu,
+            FarmMenu,
+            KillStealMenu,
+            JungleMenu,
+            FleeMenu,
+            GapMenu,
+            PredMenu,
+            SkinMenu;
 
-        public static Menu menu, ComboMenu, HarassMenu, FarmMenu, KillStealMenu, JungleMenu, FleeMenu, GapMenu, PredMenu, SkinMenu;
         public static CheckBox SmartMode;
 
         private static Vector3 mousePos
@@ -150,28 +159,28 @@ namespace SimplisticAhri
             // Q Prediction
             PredMenu.AddGroupLabel("Q Hitchance");
             var qslider = PredMenu.Add("hQ", new Slider("Q HitChance", 2, 0, 2));
-            var qMode = new[] { "Low (Fast Casting)", "Medium", "High (Slow Casting)" };
+            var qMode = new[] {"Low (Fast Casting)", "Medium", "High (Slow Casting)"};
             qslider.DisplayName = qMode[qslider.CurrentValue];
 
             qslider.OnValueChange +=
-            delegate (ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
-            {
-                sender.DisplayName = qMode[changeArgs.NewValue];
-            };
+                delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
+                {
+                    sender.DisplayName = qMode[changeArgs.NewValue];
+                };
             //--------------
 
 
             // E Prediction
             PredMenu.AddGroupLabel("E Hitchance");
             var eslider = PredMenu.Add("hE", new Slider("E HitChance", 2, 0, 2));
-            var eMode = new[] { "Low (Fast Casting)", "Medium", "High (Slow Casting)" };
+            var eMode = new[] {"Low (Fast Casting)", "Medium", "High (Slow Casting)"};
             eslider.DisplayName = eMode[qslider.CurrentValue];
 
             eslider.OnValueChange +=
-            delegate (ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
-            {
-                sender.DisplayName = eMode[changeArgs.NewValue];
-            };
+                delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
+                {
+                    sender.DisplayName = eMode[changeArgs.NewValue];
+                };
             //--------------
 
             SkinMenu = menu.AddSubMenu("Skin Chooser", "skinchooser");
@@ -179,14 +188,14 @@ namespace SimplisticAhri
 
             // Skin Chooser
             var skin = SkinMenu.Add("sID", new Slider("Skin", 0, 0, 6));
-            var sID = new[] { "Classic", "Dynasty", "Midnight", "Foxfire", "Popstar", "Challenger", "Academy" };
+            var sID = new[] {"Classic", "Dynasty", "Midnight", "Foxfire", "Popstar", "Challenger", "Academy"};
             skin.DisplayName = sID[skin.CurrentValue];
 
             skin.OnValueChange +=
-            delegate (ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
-            {
-                sender.DisplayName = sID[changeArgs.NewValue];
-            };
+                delegate(ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
+                {
+                    sender.DisplayName = sID[changeArgs.NewValue];
+                };
             //--------------
 
 
@@ -222,7 +231,8 @@ namespace SimplisticAhri
             }
         }
 
-        private static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender, Interrupter.InterruptableSpellEventArgs args)
+        private static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender,
+            Interrupter.InterruptableSpellEventArgs args)
         {
             if (!GapMenu["IntE"].Cast<CheckBox>().CurrentValue) return;
 
@@ -373,10 +383,10 @@ namespace SimplisticAhri
 
             if (ComboMenu["useECombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.E].IsReady() && eval)
             {
-                    var predE = Prediction.Position.PredictLinearMissile(target, Spells[SpellSlot.E].Range, 60,
-                        250,
-                        1550, 0);
-                    Spells[SpellSlot.E].Cast(predE.CastPosition);
+                var predE = Prediction.Position.PredictLinearMissile(target, Spells[SpellSlot.E].Range, 60,
+                    250,
+                    1550, 0);
+                Spells[SpellSlot.E].Cast(predE.CastPosition);
             }
 
             if (ComboMenu["useQCombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady() && qval)
@@ -658,7 +668,6 @@ namespace SimplisticAhri
                 case "Academy":
                     Player.SetSkinId(6);
                     break;
-
             }
         }
     }
