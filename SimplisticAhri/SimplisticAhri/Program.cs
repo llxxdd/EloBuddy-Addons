@@ -22,7 +22,7 @@ namespace SimplisticAhri
         };
 
 
-        private static Dictionary<string, object> _Q = new Dictionary<string, object>()
+        private static readonly Dictionary<string, object> _Q = new Dictionary<string, object>
         {
             {"MinSpeed", 400},
             {"MaxSpeed", 2500},
@@ -40,13 +40,13 @@ namespace SimplisticAhri
             {"CatchPosition", null}
         };
 
-        private static Dictionary<string, object> _E = new Dictionary<string, object>()
+        private static readonly Dictionary<string, object> _E = new Dictionary<string, object>
         {
             {"LastCastTime", 0f},
-            {"Object", null},
+            {"Object", null}
         };
 
-        private static Dictionary<string, object> _R = new Dictionary<string, object>() {{"EndTime", 0f},};
+        private static readonly Dictionary<string, object> _R = new Dictionary<string, object> {{"EndTime", 0f}};
 
         private static readonly Spell.Skillshot SpellE = new Spell.Skillshot(SpellSlot.E, 970, SkillShotType.Linear, 300,
             1500, 60);
@@ -438,50 +438,43 @@ namespace SimplisticAhri
             }
         }
 
+
         private static void HandleRCombo(AIHeroClient target)
         {
-            if (Spells[SpellSlot.R].IsReady() && target.IsValidTarget())
+            if (Spells[SpellSlot.R].IsReady() && target.IsValidTarget() && target.HasRecentlyChangedPath(1))
             {
-                if (ComboMenu["SmartUlt"].Cast<CheckBox>().CurrentValue)
+                if (ComboMenu["SmartUlt"].Cast<CheckBox>().CurrentValue && (float) _R["EndTime"] > 0 &&
+                    _Q["Object"] != null)
                 {
-                    if ((float) _R["EndTime"] > ((float) 0))
+                    if (
+                        (float) _R["EndTime"] - Game.Time <=
+                        _Player.Spellbook.GetSpell(Spells[SpellSlot.R].Slot).Cooldown)
                     {
-                        if (_Q["Object"] != null)
+                        var turret =
+                            ObjectManager.Get<Obj_AI_Turret>()
+                                .FirstOrDefault(x => !x.IsAlly && !x.IsDead && x.Distance(_Player) <= 500);
+                        var killable = ObjectManager.Get<AIHeroClient>().Where(x => !x.IsAlly && x.IsValidTarget(1000));
+                        var objAiHeroes = killable as AIHeroClient[] ?? killable.ToArray();
+
+                        if (target.IsValidTarget(Spells[SpellSlot.R].Range + SpellE.Range))
                         {
-                            if ((bool) _Q["IsReturning"] &&
-                                Extensions.Distance(_Player, (GameObject) _Q["Object"]) <
-                                Extensions.Distance(_Player, (Obj_AI_Base) _Q["Target"]))
+                            if (SpellE.IsReady(2) || SpellQ.IsReady(2))
                             {
-                                Spells[SpellSlot.R].Cast(mousePos);
+                                if (target.Health <= GetComboDamage(target) && turret == null)
+                                {
+                                    Spells[SpellSlot.R].Cast(mousePos);
+                                }
+
+                                foreach (var hp in objAiHeroes.Where(hp => GetComboDamage(hp) >= hp.Health))
+                                {
+                                    Spells[SpellSlot.R].Cast(mousePos);
+                                }
                             }
-                            else
-                            {
-                                return;
-                            }
-                        }
-                        if (!Spells[SpellSlot.Q].IsReady() &&
-                            (float) _R["EndTime"] - Game.Time <=
-                            _Player.Spellbook.GetSpell(Spells[SpellSlot.R].Slot).Cooldown)
-                        {
-                            Spells[SpellSlot.R].Cast(mousePos);
                         }
                     }
-                    if (GetComboDamage(target) >= target.Health &&
-                        Extensions.Distance(mousePos, target) < Extensions.Distance(_Player, target))
-                    {
-                        if (Extensions.Distance(_Player, target) > 400)
-                        {
-                            Spells[SpellSlot.R].Cast(mousePos);
-                        }
-                    }
-                }
-                else
-                {
-                    Spells[SpellSlot.R].Cast(mousePos);
                 }
             }
         }
-
 
         public static float GetComboDamage(AIHeroClient target)
         {
@@ -557,14 +550,14 @@ namespace SimplisticAhri
             return _Player.GetSpellDamage(target, slot);
         }
 
-        private static void OnCreateObj(EloBuddy.GameObject sender, EventArgs args)
+        private static void OnCreateObj(GameObject sender, EventArgs args)
         {
             var missile = (MissileClient) sender;
             if (missile == null || !missile.IsValid || missile.SpellCaster == null || !missile.SpellCaster.IsValid)
             {
                 return;
             }
-            var unit = (Obj_AI_Base) missile.SpellCaster;
+            var unit = missile.SpellCaster;
             if (missile.SpellCaster.IsMe)
             {
                 var name = missile.SData.Name.ToLower();
@@ -592,7 +585,7 @@ namespace SimplisticAhri
             {
                 return;
             }
-            var unit = (Obj_AI_Base) missile.SpellCaster;
+            var unit = missile.SpellCaster;
             if (missile.SpellCaster.IsMe)
             {
                 var name = missile.SData.Name.ToLower();
