@@ -311,7 +311,7 @@ namespace SimplisticAhri
             var target = TargetSelector.GetTarget(1550, DamageType.Magical);
             var qval = SpellQ.GetPrediction(target).HitChance >= PredQ();
             var eval = SpellE.GetPrediction(target).HitChance >= PredE();
-            
+
             if (target == null) return;
 
             if (Orbwalker.IsAutoAttacking && HarassMenu["waitAA"].Cast<CheckBox>().CurrentValue) return;
@@ -335,7 +335,7 @@ namespace SimplisticAhri
                 if (target.Distance(_Player) <= Spells[SpellSlot.W].Range ||
                     (_Player.ManaPercent > 40 && SmartMode.CurrentValue))
                 {
-                    Spells[SpellSlot.W].Cast();
+                    Spells[SpellSlot.W].Cast(target);
                     return;
                 }
             }
@@ -359,14 +359,10 @@ namespace SimplisticAhri
 
         public static void Combo()
         {
-            Chat.Print("called");
             var target = TargetSelector.GetTarget(1550, DamageType.Magical);
-            Chat.Print("called2");
             var charmed = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Charm));
-            Chat.Print("called3");
             var cc = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Fear));
 
-            Chat.Print("1");
             if (Orbwalker.IsAutoAttacking && HarassMenu["waitAA"].Cast<CheckBox>().CurrentValue) return;
 
             if (ComboMenu["useCharm"].Cast<CheckBox>().CurrentValue && charmed != null)
@@ -382,19 +378,20 @@ namespace SimplisticAhri
                 target = TargetSelector.GetTarget(1550, DamageType.Magical);
             }
 
-            Chat.Print("22");
+
             HandleRCombo(target);
 
-            if (ComboMenu["useECombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.E].IsReady() && SpellE.GetPrediction(target).HitChance >= PredE())
+            if (ComboMenu["useECombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.E].IsReady() &&
+                SpellE.GetPrediction(target).HitChance >= PredE())
             {
-                Chat.Print("2");
                 var predE = Prediction.Position.PredictLinearMissile(target, Spells[SpellSlot.E].Range, 60,
                     250,
                     1550, 0);
                 Spells[SpellSlot.E].Cast(predE.CastPosition);
             }
 
-            if (ComboMenu["useQCombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady() && SpellQ.GetPrediction(target).HitChance >= PredQ())
+            if (ComboMenu["useQCombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady() &&
+                SpellQ.GetPrediction(target).HitChance >= PredQ())
             {
                 var predQ = Prediction.Position.PredictLinearMissile(target, Spells[SpellSlot.Q].Range, 50, 250, 1600,
                     999);
@@ -404,7 +401,7 @@ namespace SimplisticAhri
 
             if (ComboMenu["useWCombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.W].IsReady())
             {
-                Spells[SpellSlot.W].Cast();
+                Spells[SpellSlot.W].Cast(target);
             }
         }
 
@@ -446,10 +443,9 @@ namespace SimplisticAhri
 
         private static void HandleRCombo(AIHeroClient target)
         {
-            if (Spells[SpellSlot.R].IsReady() && target.IsValidTarget() && target.HasRecentlyChangedPath(1))
+            if (Spells[SpellSlot.R].IsReady() && target.IsValidTarget())
             {
-                if (ComboMenu["SmartUlt"].Cast<CheckBox>().CurrentValue && (float) _R["EndTime"] > 0 &&
-                    _Q["Object"] != null)
+                if (ComboMenu["SmartUlt"].Cast<CheckBox>().CurrentValue)
                 {
                     if (
                         (float) _R["EndTime"] - Game.Time <=
@@ -465,12 +461,17 @@ namespace SimplisticAhri
                         {
                             if (SpellE.IsReady(2) || SpellQ.IsReady(2))
                             {
-                                if (target.Health <= GetComboDamage(target) && turret == null)
+                                var dmg = Damage(target, SpellSlot.E) + Damage(target, SpellSlot.Q) +
+                                          Damage(target, SpellSlot.R);
+                                if (target.Health <= dmg && turret == null)
                                 {
                                     Spells[SpellSlot.R].Cast(mousePos);
                                 }
 
-                                foreach (var hp in objAiHeroes.Where(hp => GetComboDamage(hp) >= hp.Health))
+                                foreach (
+                                    var hp in
+                                        objAiHeroes.Where(hp => Damage(hp, SpellSlot.E) + Damage(hp, SpellSlot.Q) +
+                                                                Damage(hp, SpellSlot.R) >= hp.Health))
                                 {
                                     Spells[SpellSlot.R].Cast(mousePos);
                                 }
@@ -481,17 +482,6 @@ namespace SimplisticAhri
             }
         }
 
-        public static float GetComboDamage(AIHeroClient target)
-        {
-            float totalDamage = 0;
-            totalDamage += Spells[SpellSlot.Q].IsReady() ? (_Player.GetSpellDamage(target, SpellSlot.Q)) : 0;
-            totalDamage += Spells[SpellSlot.W].IsReady() ? (_Player.GetSpellDamage(target, SpellSlot.W)) : 0;
-            totalDamage += Spells[SpellSlot.E].IsReady() ? (_Player.GetSpellDamage(target, SpellSlot.E)) : 0;
-            totalDamage += (Spells[SpellSlot.R].IsReady() || (RStacks() != 0))
-                ? (_Player.GetSpellDamage(target, SpellSlot.R))
-                : 0;
-            return totalDamage;
-        }
 
         public static int RStacks()
         {
