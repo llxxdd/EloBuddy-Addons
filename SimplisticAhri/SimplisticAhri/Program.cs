@@ -311,16 +311,18 @@ namespace SimplisticAhri
             var target = TargetSelector.GetTarget(1550, DamageType.Magical);
             var qval = SpellQ.GetPrediction(target).HitChance >= PredQ();
             var eval = SpellE.GetPrediction(target).HitChance >= PredE();
-
+            
             if (target == null) return;
 
             if (Orbwalker.IsAutoAttacking && HarassMenu["waitAA"].Cast<CheckBox>().CurrentValue) return;
-
+            Chat.Print("1");
             if (HarassMenu["useQHarass"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady() && qval)
             {
+                Chat.Print("2");
                 if (target.Distance(_Player) <= Spells[SpellSlot.Q].Range ||
                     (_Player.ManaPercent > 40 && SmartMode.CurrentValue))
                 {
+                    Chat.Print("3");
                     var predQ = Prediction.Position.PredictLinearMissile(target, Spells[SpellSlot.Q].Range, 50, 250,
                         1600, 999);
                     Spells[SpellSlot.Q].Cast(predQ.CastPosition);
@@ -357,12 +359,14 @@ namespace SimplisticAhri
 
         public static void Combo()
         {
+            Chat.Print("called");
             var target = TargetSelector.GetTarget(1550, DamageType.Magical);
+            Chat.Print("called2");
             var charmed = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Charm));
+            Chat.Print("called3");
             var cc = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Fear));
-            var qval = SpellQ.GetPrediction(target).HitChance >= PredQ();
-            var eval = SpellE.GetPrediction(target).HitChance >= PredE();
 
+            Chat.Print("1");
             if (Orbwalker.IsAutoAttacking && HarassMenu["waitAA"].Cast<CheckBox>().CurrentValue) return;
 
             if (ComboMenu["useCharm"].Cast<CheckBox>().CurrentValue && charmed != null)
@@ -378,18 +382,19 @@ namespace SimplisticAhri
                 target = TargetSelector.GetTarget(1550, DamageType.Magical);
             }
 
-
+            Chat.Print("22");
             HandleRCombo(target);
 
-            if (ComboMenu["useECombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.E].IsReady() && eval)
+            if (ComboMenu["useECombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.E].IsReady() && SpellE.GetPrediction(target).HitChance >= PredE())
             {
+                Chat.Print("2");
                 var predE = Prediction.Position.PredictLinearMissile(target, Spells[SpellSlot.E].Range, 60,
                     250,
                     1550, 0);
                 Spells[SpellSlot.E].Cast(predE.CastPosition);
             }
 
-            if (ComboMenu["useQCombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady() && qval)
+            if (ComboMenu["useQCombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady() && SpellQ.GetPrediction(target).HitChance >= PredQ())
             {
                 var predQ = Prediction.Position.PredictLinearMissile(target, Spells[SpellSlot.Q].Range, 50, 250, 1600,
                     999);
@@ -605,7 +610,7 @@ namespace SimplisticAhri
 
         private static HitChance PredQ()
         {
-            var mode = PredMenu["HitchanceQ"].DisplayName;
+            var mode = PredMenu["hQ"].DisplayName;
             switch (mode)
             {
                 case "Low (Fast Casting)":
@@ -620,7 +625,7 @@ namespace SimplisticAhri
 
         private static HitChance PredE()
         {
-            var mode = PredMenu["HitchanceE"].DisplayName;
+            var mode = PredMenu["hE"].DisplayName;
             switch (mode)
             {
                 case "Low (Fast Casting)":
