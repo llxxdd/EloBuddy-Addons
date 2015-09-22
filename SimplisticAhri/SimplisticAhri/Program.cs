@@ -15,10 +15,10 @@ namespace SimplisticAhri
     {
         private static Dictionary<SpellSlot, Spell.SpellBase> spells = new Dictionary<SpellSlot, Spell.SpellBase>
         {
-            {SpellSlot.Q, new Spell.Skillshot(SpellSlot.Q, 1000, SkillShotType.Linear, 250, 1600, 50)},
-            {SpellSlot.W, new Spell.Active(SpellSlot.W, 700)},
-            {SpellSlot.E, new Spell.Skillshot(SpellSlot.E, 1000, SkillShotType.Linear, 250, 1550, 60)},
-            {SpellSlot.R, new Spell.Skillshot(SpellSlot.R, 900, SkillShotType.Linear, 250)}
+            {SpellSlot.Q, new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, 250, 1400, 90)},
+            {SpellSlot.W, new Spell.Skillshot(SpellSlot.W, 550, SkillShotType.Circular, 250 , 1200, 300)},
+            {SpellSlot.E, new Spell.Skillshot(SpellSlot.E, 970, SkillShotType.Linear, 300, 1500, 60)},
+            {SpellSlot.R, new Spell.Skillshot(SpellSlot.R, 850, SkillShotType.Circular,250,1400,250)}
         };
 
 
@@ -48,11 +48,15 @@ namespace SimplisticAhri
 
         private static Dictionary<string, object> _R = new Dictionary<string, object>() {{"EndTime", 0f},};
 
-        private static readonly Spell.Skillshot SpellE = new Spell.Skillshot(SpellSlot.E, 1000, SkillShotType.Linear,
-            250, 1550, 60);
+        private static readonly Spell.Skillshot SpellE = new Spell.Skillshot(SpellSlot.E, 970, SkillShotType.Linear, 300,
+            1500, 60);
+
+        private static readonly Spell.Skillshot SpellQ = new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, 250,
+            1400, 90);
 
 
-        public static Menu menu, ComboMenu, HarassMenu, FarmMenu, KillStealMenu, JungleMenu, FleeMenu, GapMenu;
+
+        public static Menu menu, ComboMenu, HarassMenu, FarmMenu, KillStealMenu, JungleMenu, FleeMenu, GapMenu, PredMenu, SkinMenu;
         public static CheckBox SmartMode;
 
         private static Vector3 mousePos
@@ -141,6 +145,51 @@ namespace SimplisticAhri
             GapMenu.Add("IntE", new CheckBox("Use E on Interruptable Spells", true));
 
 
+            PredMenu = menu.AddSubMenu("Prediction", "pred");
+
+            // Q Prediction
+            PredMenu.AddGroupLabel("Q Hitchance");
+            var qslider = PredMenu.Add("hQ", new Slider("Q HitChance", 2, 0, 2));
+            var qMode = new[] { "Low (Fast Casting)", "Medium", "High (Slow Casting)" };
+            qslider.DisplayName = qMode[qslider.CurrentValue];
+
+            qslider.OnValueChange +=
+            delegate (ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
+            {
+                sender.DisplayName = qMode[changeArgs.NewValue];
+            };
+            //--------------
+
+
+            // E Prediction
+            PredMenu.AddGroupLabel("E Hitchance");
+            var eslider = PredMenu.Add("hE", new Slider("E HitChance", 2, 0, 2));
+            var eMode = new[] { "Low (Fast Casting)", "Medium", "High (Slow Casting)" };
+            eslider.DisplayName = eMode[qslider.CurrentValue];
+
+            eslider.OnValueChange +=
+            delegate (ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
+            {
+                sender.DisplayName = eMode[changeArgs.NewValue];
+            };
+            //--------------
+
+            SkinMenu = menu.AddSubMenu("Skin Chooser", "skinchooser");
+            SkinMenu.AddGroupLabel("Choose your Skin and puff!");
+
+            // Skin Chooser
+            var skin = SkinMenu.Add("sID", new Slider("Skin", 0, 0, 6));
+            var sID = new[] { "Classic", "Dynasty", "Midnight", "Foxfire", "Popstar", "Challenger", "Academy" };
+            skin.DisplayName = sID[skin.CurrentValue];
+
+            skin.OnValueChange +=
+            delegate (ValueBase<int> sender, ValueBase<int>.ValueChangeArgs changeArgs)
+            {
+                sender.DisplayName = sID[changeArgs.NewValue];
+            };
+            //--------------
+
+
             SpellE.AllowedCollisionCount = 0;
             Game.OnTick += Game_OnTick;
             Gapcloser.OnGapcloser += Gapcloser_OnGapCloser;
@@ -160,6 +209,7 @@ namespace SimplisticAhri
             }
             else if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Flee)) Flee();
             KillSteal();
+            sChoose();
         }
 
         private static void Gapcloser_OnGapCloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs gapcloser)
@@ -249,12 +299,14 @@ namespace SimplisticAhri
         public static void Harass()
         {
             var target = TargetSelector.GetTarget(1550, DamageType.Magical);
+            var qval = SpellQ.GetPrediction(target).HitChance >= PredQ();
+            var eval = SpellE.GetPrediction(target).HitChance >= PredE();
 
             if (target == null) return;
 
             if (Orbwalker.IsAutoAttacking && HarassMenu["waitAA"].Cast<CheckBox>().CurrentValue) return;
 
-            if (HarassMenu["useQHarass"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady())
+            if (HarassMenu["useQHarass"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady() && qval)
             {
                 if (target.Distance(_Player) <= Spells[SpellSlot.Q].Range ||
                     (_Player.ManaPercent > 40 && SmartMode.CurrentValue))
@@ -276,7 +328,7 @@ namespace SimplisticAhri
                 }
             }
 
-            if (HarassMenu["useEHarass"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.E].IsReady())
+            if (HarassMenu["useEHarass"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.E].IsReady() && eval)
             {
                 if (target.Distance(_Player) <= Spells[SpellSlot.E].Range ||
                     (_Player.ManaPercent > 40 && SmartMode.CurrentValue))
@@ -298,6 +350,8 @@ namespace SimplisticAhri
             var target = TargetSelector.GetTarget(1550, DamageType.Magical);
             var charmed = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Charm));
             var cc = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Fear));
+            var qval = SpellQ.GetPrediction(target).HitChance >= PredQ();
+            var eval = SpellE.GetPrediction(target).HitChance >= PredE();
 
             if (Orbwalker.IsAutoAttacking && HarassMenu["waitAA"].Cast<CheckBox>().CurrentValue) return;
 
@@ -317,19 +371,15 @@ namespace SimplisticAhri
 
             HandleRCombo(target);
 
-            if (ComboMenu["useECombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.E].IsReady())
+            if (ComboMenu["useECombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.E].IsReady() && eval)
             {
-                var e = SpellE.GetPrediction(target);
-                if (e.HitChance >= HitChance.High)
-                {
                     var predE = Prediction.Position.PredictLinearMissile(target, Spells[SpellSlot.E].Range, 60,
                         250,
                         1550, 0);
                     Spells[SpellSlot.E].Cast(predE.CastPosition);
-                }
             }
 
-            if (ComboMenu["useQCombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady())
+            if (ComboMenu["useQCombo"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady() && qval)
             {
                 var predQ = Prediction.Position.PredictLinearMissile(target, Spells[SpellSlot.Q].Range, 50, 250, 1600,
                     999);
@@ -547,6 +597,68 @@ namespace SimplisticAhri
                 {
                     _E["Object"] = null;
                 }
+            }
+        }
+
+        private static HitChance PredQ()
+        {
+            var mode = PredMenu["HitchanceQ"].DisplayName;
+            switch (mode)
+            {
+                case "Low (Fast Casting)":
+                    return HitChance.Low;
+                case "Medium":
+                    return HitChance.Medium;
+                case "High (Slow Casting)":
+                    return HitChance.High;
+            }
+            return HitChance.Medium;
+        }
+
+        private static HitChance PredE()
+        {
+            var mode = PredMenu["HitchanceE"].DisplayName;
+            switch (mode)
+            {
+                case "Low (Fast Casting)":
+                    return HitChance.Low;
+                case "Medium":
+                    return HitChance.Medium;
+                case "High (Slow Casting)":
+                    return HitChance.High;
+            }
+            return HitChance.Medium;
+        }
+
+        private static void sChoose()
+        {
+            var style = SkinMenu["sID"].DisplayName;
+
+
+            switch (style)
+            {
+                case "Classic":
+                    Player.SetSkinId(0);
+                    break;
+                case "Dynasty":
+                    Player.SetSkinId(1);
+                    break;
+                case "Midnight":
+                    Player.SetSkinId(2);
+                    break;
+                case "Foxfire":
+                    Player.SetSkinId(3);
+                    break;
+                case "Popstar":
+                    Player.SetSkinId(4);
+                    break;
+                case "Challenger":
+                    Player.SetSkinId(5);
+                    break;
+                case "Academy":
+                    Player.SetSkinId(6);
+                    break;
+
             }
         }
     }
