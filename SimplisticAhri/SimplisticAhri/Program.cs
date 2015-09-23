@@ -392,7 +392,8 @@ namespace SimplisticAhri
                 target = selectedHero;  
             }
 
-
+            if (target == null) return;
+            Orbwalker.OrbwalkTo(mousePos);
             Spells[SpellSlot.R].Cast(mousePos);
 
             if (Spells[SpellSlot.E].IsReady() &&
