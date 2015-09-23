@@ -73,6 +73,8 @@ namespace SimplisticAhri
             get { return Game.CursorPos; }
         }
 
+        public static AIHeroClient selectedHero { get; set; }
+
         public static AIHeroClient _Player
         {
             get { return ObjectManager.Player; }
@@ -115,6 +117,7 @@ namespace SimplisticAhri
             menu.AddLabel("Harass Smart Mana Mode");
 
             ComboMenu = menu.AddSubMenu("Combo", "ComboAhri");
+            ComboMenu.Add("burst", new KeyBind("Burst Target",false, KeyBind.BindTypes.HoldActive, 'N' ));
             ComboMenu.Add("useQCombo", new CheckBox("Use Q"));
             ComboMenu.Add("useWCombo", new CheckBox("Use W"));
             ComboMenu.Add("useECombo", new CheckBox("Use E"));
@@ -203,6 +206,8 @@ namespace SimplisticAhri
             Game.OnTick += Game_OnTick;
             Gapcloser.OnGapcloser += Gapcloser_OnGapCloser;
             Interrupter.OnInterruptableSpell += Interrupter_OnInterruptableSpell;
+            Game.OnWndProc += Game_OnWndProc;
+            Drawing.OnDraw += OnDraw;
         }
 
         private static void Game_OnTick(EventArgs args)
@@ -217,6 +222,7 @@ namespace SimplisticAhri
                 JungleClear();
             }
             else if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Flee)) Flee();
+            else if (ComboMenu["burst"].Cast<KeyBind>().CurrentValue) BurstCombo();
             KillSteal();
             sChoose();
         }
@@ -228,6 +234,14 @@ namespace SimplisticAhri
                 Spells[SpellSlot.E].Range*Spells[SpellSlot.E].Range)
             {
                 Spells[SpellSlot.E].Cast(gapcloser.Sender);
+            }
+        }
+
+        private static void OnDraw(EventArgs args)
+        {
+            if (selectedHero.IsValidTarget())
+            {
+                Drawing.DrawCircle(selectedHero.Position, Spells[SpellSlot.W].Range, System.Drawing.Color.Red);
             }
         }
 
@@ -354,6 +368,54 @@ namespace SimplisticAhri
                         Spells[SpellSlot.E].Cast(predE.CastPosition);
                     }
                 }
+            }
+        }
+
+        static void Game_OnWndProc(WndEventArgs args)
+        {
+            if (args.Msg != (uint)WindowMessages.LeftButtonDown)
+            {
+                return;
+            }
+            selectedHero =
+                HeroManager.Enemies
+                    .FindAll(hero => hero.IsValidTarget() && hero.Distance(Game.CursorPos, true) < 40000) // 200 * 200
+                    .OrderBy(h => h.Distance(Game.CursorPos, true)).FirstOrDefault();
+        }
+
+        public static void BurstCombo()
+        {
+            var target = TargetSelector.GetTarget(1000, DamageType.Magical);
+
+            if (selectedHero != null)
+            {
+                target = selectedHero;  
+            }
+
+
+            Spells[SpellSlot.R].Cast(mousePos);
+
+            if (Spells[SpellSlot.E].IsReady() &&
+                SpellE.GetPrediction(target).HitChance >= PredE())
+            {
+                var predE = Prediction.Position.PredictLinearMissile(target, Spells[SpellSlot.E].Range, 60,
+                    250,
+                    1550, 0);
+                Spells[SpellSlot.E].Cast(predE.CastPosition);
+            }
+
+            if (Spells[SpellSlot.Q].IsReady() &&
+                SpellQ.GetPrediction(target).HitChance >= PredQ())
+            {
+                var predQ = Prediction.Position.PredictLinearMissile(target, Spells[SpellSlot.Q].Range, 50, 250, 1600,
+                    999);
+                Spells[SpellSlot.Q].Cast(predQ.CastPosition);
+                return;
+            }
+
+            if (Spells[SpellSlot.W].IsReady())
+            {
+                Spells[SpellSlot.W].Cast(target);
             }
         }
 
