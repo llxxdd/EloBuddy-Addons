@@ -14,7 +14,7 @@ namespace SimplisticDiana
 
         public static void Checks()
         {
-            if (ObjectManager.Player.Hero != Champion.Ahri)
+            if (ObjectManager.Player.Hero != Champion.Diana)
             {
                 Chat.Print("Champion not supported!");
                 return;

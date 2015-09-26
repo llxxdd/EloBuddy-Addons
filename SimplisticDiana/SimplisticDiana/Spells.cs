@@ -44,6 +44,7 @@ namespace SimplisticDiana
             else if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass)) Harass();
             else if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear)) WaveClear();
             else if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear)) JungleClear();
+            SChoose();
         }
 
         public static void MisayaCombo()
@@ -126,7 +127,7 @@ namespace SimplisticDiana
             {
                 return;
             }
-
+            
             if (SpellQ.IsReady() && Config.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue)
             {
                 if (SpellQ.GetPrediction(target).HitChance >= PredQ())
