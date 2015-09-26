@@ -265,34 +265,6 @@ namespace SimplisticDiana
 
         public static float Damage(Obj_AI_Base target, SpellSlot slot)
         {
-            if (target.IsValidTarget())
-            {
-                if (slot == SpellSlot.Q)
-                {
-                    return
-                        _Player.CalculateDamageOnUnit(target, DamageType.Magical,
-                            (float) 25*SpellQ.Level + 15 + 0.35f*_Player.FlatMagicDamageMod) +
-                        _Player.CalculateDamageOnUnit(target, DamageType.True,
-                            (float) 25*SpellQ.Level + 15 + 0.35f*_Player.FlatMagicDamageMod);
-                }
-                if (slot == SpellSlot.W)
-                {
-                    return 1.6f*
-                           _Player.CalculateDamageOnUnit(target, DamageType.Magical,
-                               (float) 25*SpellW.Level + 15 + 0.4f*_Player.FlatMagicDamageMod);
-                }
-                if (slot == SpellSlot.E)
-                {
-                    return _Player.CalculateDamageOnUnit(target, DamageType.Magical,
-                        (float) 35*SpellE.Level + 25 + 0.5f*_Player.FlatMagicDamageMod);
-                }
-                if (slot == SpellSlot.R)
-                {
-                    return 3*
-                           _Player.CalculateDamageOnUnit(target, DamageType.Magical,
-                               (float) 40*SpellR.Level + 30 + 0.3f*_Player.FlatMagicDamageMod);
-                }
-            }
             return _Player.GetSpellDamage(target, slot);
         }
 
