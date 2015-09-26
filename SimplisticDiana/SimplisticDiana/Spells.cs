@@ -343,7 +343,7 @@ namespace SimplisticDiana
 
         private static HitChance PredQ()
         {
-            var mode = Config.PredMenu["hE"].DisplayName;
+            var mode = Config.PredMenu["hQ"].DisplayName;
             switch (mode)
             {
                 case "Low (Fast Casting)":
