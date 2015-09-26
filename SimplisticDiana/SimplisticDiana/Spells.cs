@@ -78,13 +78,19 @@ namespace SimplisticDiana
                 }
             }
 
-            if (SpellR.IsReady() && Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue)
+            if (SpellR.IsReady() && Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue && target.HasBuff("dianamoonlight"))
             {
-                if (target.HasBuff("dianamoonlight"))
-                {
                     SpellR.Cast(target);
+            } else if (SpellR.IsReady() && Config.ComboMenu["useR2"].Cast<CheckBox>().CurrentValue)
+                {
+                    var e = _Player.CountEnemiesInRange(SpellQ.Range * 2);
+
+                    if (e <= Config.ComboMenu["useR2Count"].Cast<Slider>().CurrentValue && SpellR.IsReady() &&
+                        Damage(target, SpellSlot.R) >= target.Health)
+                    {
+                        SpellR.Cast(target);
+                    }
                 }
-            }
 
             if (SpellW.IsReady() && SpellW.IsInRange(target) && Config.ComboMenu["useW"].Cast<CheckBox>().CurrentValue)
             {
@@ -96,16 +102,7 @@ namespace SimplisticDiana
                 SpellE.Cast();
             }
 
-            if (SpellR.IsReady() && Config.ComboMenu["useR2"].Cast<CheckBox>().CurrentValue)
-            {
-                var e = _Player.CountEnemiesInRange(SpellQ.Range*2);
-
-                if (e <= Config.ComboMenu["useR2Count"].Cast<Slider>().CurrentValue && SpellR.IsReady() &&
-                    Damage(target, SpellSlot.R) >= target.Health)
-                {
-                    SpellR.Cast(target);
-                }
-            }
+            
 
             if (Ignite.IsInRange(target) && target.Health < 50 + 20*_Player.Level - (target.HPRegenRate/5*3))
             {
@@ -243,7 +240,7 @@ namespace SimplisticDiana
             {
                 foreach (var minion in winrange)
                 {
-                    var mline = minion.CountEnemiesInRange(SpellW.Range);
+                    int mline = minion.CountEnemiesInRange(SpellW.Range);
                     if (mline >=
                         Config.FarmMenu["wct"].Cast<Slider>().CurrentValue)
                     {
