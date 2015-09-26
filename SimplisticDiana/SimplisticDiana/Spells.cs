@@ -56,7 +56,8 @@ namespace SimplisticDiana
             }
 
             if (Config.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue &&
-                Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue && SpellQ.IsReady() && SpellR.IsReady())
+                Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue && SpellQ.IsReady() && SpellR.IsReady() &&
+                !target.HasBuff("dianamoonlight"))
             {
                 SpellR.Cast(target);
                 SpellQ.Cast(target);
@@ -79,7 +80,8 @@ namespace SimplisticDiana
                 if (target.HasBuff("dianamoonlight"))
                     SpellR.Cast(target);
             }
-            else if (SpellR.IsReady() && Config.ComboMenu["useR2"].Cast<CheckBox>().CurrentValue && Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue)
+            else if (SpellR.IsReady() && Config.ComboMenu["useR2"].Cast<CheckBox>().CurrentValue &&
+                     Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue)
             {
                 var e = _Player.CountEnemiesInRange(SpellQ.Range*2);
 
@@ -101,7 +103,8 @@ namespace SimplisticDiana
             }
 
 
-            if (Ignite.IsInRange(target) && target.Health < 50 + 20*_Player.Level - (target.HPRegenRate/5*3))
+            if (Ignite.IsInRange(target) && target.Health < 50 + 20*_Player.Level - (target.HPRegenRate/5*3) &&
+                Config.ComboMenu["useI"].Cast<CheckBox>().CurrentValue)
             {
                 Ignite.Cast(target);
             }
@@ -124,9 +127,19 @@ namespace SimplisticDiana
                 }
             }
 
-            if (SpellR.IsReady() && Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue)
+            if (SpellR.IsReady() && Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue &&
+                target.HasBuff("dianamoonlight"))
             {
                 if (target.HasBuff("dianamoonlight"))
+                    SpellR.Cast(target);
+            }
+            else if (SpellR.IsReady() && Config.ComboMenu["useR2"].Cast<CheckBox>().CurrentValue &&
+                     Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue)
+            {
+                var e = _Player.CountEnemiesInRange(SpellQ.Range*2);
+
+                if (e <= Config.ComboMenu["useR2Count"].Cast<Slider>().CurrentValue && SpellR.IsReady() &&
+                    Damage(target, SpellSlot.R) >= target.Health)
                 {
                     SpellR.Cast(target);
                 }
@@ -154,7 +167,8 @@ namespace SimplisticDiana
                 }
             }
 
-            if (Ignite.IsInRange(target) && target.Health < 50 + 20*_Player.Level - (target.HPRegenRate/5*3))
+            if (Ignite.IsInRange(target) && target.Health < 50 + 20*_Player.Level - (target.HPRegenRate/5*3) &&
+                Config.ComboMenu["useI"].Cast<CheckBox>().CurrentValue)
             {
                 Ignite.Cast(target);
             }
@@ -236,22 +250,14 @@ namespace SimplisticDiana
             {
                 foreach (var minion in winrange)
                 {
-                    var mline = minion.CountEnemiesInRange(SpellW.Range);
-                    if (mline >=
-                        Config.FarmMenu["wct"].Cast<Slider>().CurrentValue)
-                    {
                         SpellW.Cast();
-                    }
                 }
             }
 
             if (Config.FarmMenu["elc"].Cast<CheckBox>().CurrentValue && SpellE.IsReady())
             {
                 foreach (var minion in einrange)
-                {
-                    var mline = minion.CountEnemiesInRange(SpellE.Range);
-                    if (mline >=
-                        Config.FarmMenu["ect"].Cast<Slider>().CurrentValue)
+                { 
                         SpellE.Cast();
                 }
             }

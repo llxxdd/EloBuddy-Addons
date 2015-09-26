@@ -30,6 +30,7 @@ namespace SimplisticDiana
             ComboMenu.Add("useQ", new CheckBox("Use Q"));
             ComboMenu.Add("useW", new CheckBox("Use W"));
             ComboMenu.Add("useE", new CheckBox("Use E"));
+            ComboMenu.Add("useI", new CheckBox("Use Ignite"));
             ComboMenu.AddSeparator();
             ComboMenu.Add("useR", new CheckBox("Use R "));
             ComboMenu.Add("useR2", new CheckBox("Use R to KS"));
