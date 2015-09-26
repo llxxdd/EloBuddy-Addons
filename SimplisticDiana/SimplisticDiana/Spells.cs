@@ -64,7 +64,6 @@ namespace SimplisticDiana
             }
 
             Combo();
-           
         }
 
         public static void Combo()

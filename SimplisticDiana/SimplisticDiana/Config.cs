@@ -49,8 +49,6 @@ namespace SimplisticDiana
             FarmMenu.Add("elc", new CheckBox("Use E LaneClear"));
             FarmMenu.AddSeparator();
             FarmMenu.Add("qct", new Slider("Minions in range for Q", 2, 1, 5));
-            FarmMenu.Add("wct", new Slider("Minions in range for W", 2, 1, 5));
-            FarmMenu.Add("ect", new Slider("Minions in range for E", 2, 1, 5));
             FarmMenu.AddSeparator();
             FarmMenu.Add("Mana", new Slider("Min. Mana Percent:", 20, 0, 100));
 
@@ -61,12 +59,7 @@ namespace SimplisticDiana
             JungleMenu.AddSeparator();
             JungleMenu.Add("Mana", new Slider("Min. Mana Percent:", 20, 0, 100));
 
-            FleeMenu = menu.AddSubMenu("Flee", "flee");
-            FleeMenu.Add("R", new CheckBox("Use R to mousePos", true));
-
-
             PredMenu = menu.AddSubMenu("Prediction", "pred");
-
             PredMenu.AddGroupLabel("Q Hitchance");
             var qslider = PredMenu.Add("hQ", new Slider("Q HitChance", 2, 0, 2));
             var qMode = new[] {"Low (Fast Casting)", "Medium", "High (Slow Casting)"};
