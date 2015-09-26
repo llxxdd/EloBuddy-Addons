@@ -326,7 +326,10 @@ namespace SimplisticAhri
             var qval = SpellQ.GetPrediction(target).HitChance >= PredQ();
             var eval = SpellE.GetPrediction(target).HitChance >= PredE();
 
-            if (target == null) return;
+            if (target == null || !target.IsValid())
+            {
+                return;
+            }
 
             if (Orbwalker.IsAutoAttacking && HarassMenu["waitAA"].Cast<CheckBox>().CurrentValue) return;
             Chat.Print("1");
@@ -392,7 +395,11 @@ namespace SimplisticAhri
                 target = selectedHero;  
             }
 
-            if (target == null) return;
+            if (target == null || !target.IsValid())
+            {
+                return;
+            }
+
             Orbwalker.OrbwalkTo(mousePos);
             Spells[SpellSlot.R].Cast(mousePos);
 
@@ -425,6 +432,11 @@ namespace SimplisticAhri
             var target = TargetSelector.GetTarget(1550, DamageType.Magical);
             var charmed = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Charm));
             var cc = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Fear));
+
+            if (target == null || !target.IsValid())
+            {
+                return;
+            }
 
             if (Orbwalker.IsAutoAttacking && HarassMenu["waitAA"].Cast<CheckBox>().CurrentValue) return;
 
