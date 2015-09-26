@@ -10,12 +10,12 @@ namespace SimplisticDiana
     {
         private static SpellSlot ignite;
 
-        public static readonly Spell.Skillshot SpellQ = new Spell.Skillshot(SpellSlot.Q, 830, SkillShotType.Linear, 500,
+        public static readonly Spell.Skillshot SpellQ = new Spell.Skillshot(SpellSlot.Q, 830, SkillShotType.Cone, 500,
             1600, 195);
 
         public static readonly Spell.Active SpellE = new Spell.Active(SpellSlot.E, 350);
         public static readonly Spell.Active SpellW = new Spell.Active(SpellSlot.W, 200);
-        public static readonly Spell.Active SpellR = new Spell.Active(SpellSlot.R, 825);
+        public static readonly Spell.Targeted SpellR = new Spell.Targeted(SpellSlot.R, 825);
 
         public static readonly Spell.Targeted Ignite =
             new Spell.Targeted(ObjectManager.Player.GetSpellSlotFromName("summonerdot"), 600);
