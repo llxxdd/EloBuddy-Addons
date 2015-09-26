@@ -63,51 +63,8 @@ namespace SimplisticDiana
                 SpellQ.Cast(target);
             }
 
-            // NOT POSSIBLE NORMAL COMBO
-
-            if (SpellQ.IsReady() && Config.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue)
-            {
-                if (SpellQ.GetPrediction(target).HitChance >= PredQ())
-                {
-                    var predQ = SpellQ.GetPrediction(target);
-                    SpellQ.Cast(predQ.CastPosition);
-                }
-            }
-
-            if (SpellR.IsReady() && Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue &&
-                target.HasBuff("dianamoonlight"))
-            {
-                if (target.HasBuff("dianamoonlight"))
-                    SpellR.Cast(target);
-            }
-            else if (SpellR.IsReady() && Config.ComboMenu["useR2"].Cast<CheckBox>().CurrentValue &&
-                     Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue)
-            {
-                var e = _Player.CountEnemiesInRange(SpellQ.Range*2);
-
-                if (e <= Config.ComboMenu["useR2Count"].Cast<Slider>().CurrentValue && SpellR.IsReady() &&
-                    Damage(target, SpellSlot.R) >= target.Health)
-                {
-                    SpellR.Cast(target);
-                }
-            }
-
-            if (SpellW.IsReady() && SpellW.IsInRange(target) && Config.ComboMenu["useW"].Cast<CheckBox>().CurrentValue)
-            {
-                SpellW.Cast();
-            }
-
-            if (SpellE.IsReady() && SpellE.IsInRange(target) && Config.ComboMenu["useE"].Cast<CheckBox>().CurrentValue)
-            {
-                SpellE.Cast();
-            }
-
-
-            if (Ignite.IsInRange(target) && target.Health < 50 + 20*_Player.Level - (target.HPRegenRate/5*3) &&
-                Config.ComboMenu["useI"].Cast<CheckBox>().CurrentValue)
-            {
-                Ignite.Cast(target);
-            }
+            Combo();
+           
         }
 
         public static void Combo()
@@ -250,15 +207,15 @@ namespace SimplisticDiana
             {
                 foreach (var minion in winrange)
                 {
-                        SpellW.Cast();
+                    SpellW.Cast();
                 }
             }
 
             if (Config.FarmMenu["elc"].Cast<CheckBox>().CurrentValue && SpellE.IsReady())
             {
                 foreach (var minion in einrange)
-                { 
-                        SpellE.Cast();
+                {
+                    SpellE.Cast();
                 }
             }
 
