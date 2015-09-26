@@ -60,13 +60,6 @@ namespace SimplisticDiana
                 return;
             }
 
-            if (!Config.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue ||
-                !Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue)
-            {
-                Combo();
-                return;
-            }
-
             if (Config.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue &&
                 Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue && SpellQ.IsReady() && SpellR.IsReady())
             {
@@ -162,6 +155,7 @@ namespace SimplisticDiana
                 if (e <= Config.ComboMenu["useR2Count"].Cast<Slider>().CurrentValue && SpellR.IsReady() &&
                     Damage(target, SpellSlot.R) >= target.Health)
                 {
+                    Chat.Print("killing");
                     SpellR.Cast(target);
                 }
             }
@@ -238,7 +232,10 @@ namespace SimplisticDiana
                     var mline = SpellQ.GetPrediction(minion);
                     if (mline.GetCollisionObjects<Obj_AI_Minion>().Count() >=
                         Config.FarmMenu["qct"].Cast<Slider>().CurrentValue)
+                    {
                         SpellQ.Cast(minion);
+                    }
+                        
                 }
             }
 
@@ -249,7 +246,10 @@ namespace SimplisticDiana
                     var mline = minion.CountEnemiesInRange(SpellW.Range);
                     if (mline >=
                         Config.FarmMenu["wct"].Cast<Slider>().CurrentValue)
-                        SpellW.Cast();
+                    {
+                       SpellW.Cast(); 
+                    }
+                        
                 }
             }
 
