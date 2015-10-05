@@ -231,7 +231,7 @@ namespace SimplisticAhri
         {
             if (!GapMenu["GapE"].Cast<CheckBox>().CurrentValue) return;
             if (ObjectManager.Player.Distance(gapcloser.Sender, true) <
-                Spells[SpellSlot.E].Range*Spells[SpellSlot.E].Range)
+                Spells[SpellSlot.E].Range*Spells[SpellSlot.E].Range && sender.IsValidTarget())
             {
                 Spells[SpellSlot.E].Cast(gapcloser.Sender);
             }
