@@ -23,8 +23,8 @@ namespace SimplisticDiana
 
             Bootstrap.Init(null);
             Game.OnTick += Game_OnTick;
-            // Gapcloser.OnGapcloser += Gapcloser_OnGapCloser;
-            //  Interrupter.OnInterruptableSpell += Interrupter_OnInterruptableSpell;
+            Gapcloser.OnGapcloser += Spells.g;
+            Interrupter.OnInterruptableSpell += Spells.i;
             //  Game.OnWndProc += Game_OnWndProc;
             Drawing.OnDraw += OnDraw;
         }

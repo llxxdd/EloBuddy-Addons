@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Linq;
+using EloBuddy.SDK;
+using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
 
@@ -14,6 +17,7 @@ namespace SimplisticDiana
             JungleMenu,
             FleeMenu,
             GapMenu,
+            GapSMenu,
             PredMenu,
             SkinMenu;
 
@@ -25,8 +29,9 @@ namespace SimplisticDiana
             menu.AddSeparator();
 
             ComboMenu = menu.AddSubMenu("Combo", "combo");
-            ComboMenu.Add("mode", new Slider("Misaya Combo(R->Q) / Normal Combo(Q->R)", 0, 0, 1));
+            ComboMenu.Add("misaya", new KeyBind("Misaya Combo (R->Q)", false, KeyBind.BindTypes.HoldActive, 'A'));
             ComboMenu.AddSeparator();
+            ComboMenu.Add("GapKS", new CheckBox("Gapclose Minions to KS"));
             ComboMenu.Add("useQ", new CheckBox("Use Q"));
             ComboMenu.Add("useW", new CheckBox("Use W"));
             ComboMenu.Add("useE", new CheckBox("Use E"));
@@ -58,6 +63,22 @@ namespace SimplisticDiana
             JungleMenu.Add("useE", new CheckBox("Use E", true));
             JungleMenu.AddSeparator();
             JungleMenu.Add("Mana", new Slider("Min. Mana Percent:", 20, 0, 100));
+
+            GapMenu = menu.AddSubMenu("Automatic Events", "automaticevents");
+            GapMenu.Add("GapW", new CheckBox("Gapclose using W"));
+            GapMenu.Add("GapE", new CheckBox("Gapclose using E"));
+            GapMenu.Add("IntE", new CheckBox("Interrupt using E"));
+            GapMenu.Add("IntR", new CheckBox("Interrupt using R",false));
+
+            GapSMenu = menu.AddSubMenu("Gapcloser Spells", "spells");
+            var enemyChampions = HeroManager.Enemies.Select(obj => obj.ChampionName).ToArray();
+            var ex = Gapcloser.GapCloserList.Where(s => enemyChampions.Contains(s.ChampName));
+            foreach (var gap in ex)
+            {
+                var sname = gap.SpellName;
+                GapMenu.Add(sname.ToLower(), new CheckBox(gap.ChampName + " Spell " + gap.SpellSlot + "/ Gapclose it? "));
+                GapMenu.AddSeparator();
+            }
 
             PredMenu = menu.AddSubMenu("Prediction", "pred");
             PredMenu.AddGroupLabel("Q Hitchance");
