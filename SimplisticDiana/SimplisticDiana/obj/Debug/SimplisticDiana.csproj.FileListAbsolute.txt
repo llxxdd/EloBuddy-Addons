@@ -1,2 +1,3 @@
 C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticDiana\SimplisticDiana\obj\Debug\SimplisticDiana.exe
 C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticDiana\SimplisticDiana\obj\Debug\SimplisticDiana.pdb
+C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticDiana\SimplisticDiana\obj\Debug\SimplisticDiana.csprojResolveAssemblyReference.cache
