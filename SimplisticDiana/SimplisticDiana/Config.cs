@@ -1,9 +1,13 @@
-﻿using System;
+﻿#region
+
+using System;
 using System.Linq;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu;
 using EloBuddy.SDK.Menu.Values;
+
+#endregion
 
 namespace SimplisticDiana
 {
@@ -13,14 +17,11 @@ namespace SimplisticDiana
             ComboMenu,
             HarassMenu,
             FarmMenu,
-            KillStealMenu,
             JungleMenu,
-            FleeMenu,
             GapMenu,
             GapSMenu,
             PredMenu,
             SkinMenu;
-
 
         public static void Load(EventArgs args)
         {
@@ -68,7 +69,7 @@ namespace SimplisticDiana
             GapMenu.Add("GapW", new CheckBox("Gapclose using W"));
             GapMenu.Add("GapE", new CheckBox("Gapclose using E"));
             GapMenu.Add("IntE", new CheckBox("Interrupt using E"));
-            GapMenu.Add("IntR", new CheckBox("Interrupt using R",false));
+            GapMenu.Add("IntR", new CheckBox("Interrupt using R", false));
 
             GapSMenu = menu.AddSubMenu("Gapcloser Spells", "spells");
             var enemyChampions = HeroManager.Enemies.Select(obj => obj.ChampionName).ToArray();

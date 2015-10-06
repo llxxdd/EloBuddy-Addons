@@ -1,7 +1,11 @@
-﻿using System;
+﻿#region
+
+using System;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Events;
+
+#endregion
 
 namespace SimplisticDiana
 {
@@ -25,17 +29,11 @@ namespace SimplisticDiana
             Game.OnTick += Game_OnTick;
             Gapcloser.OnGapcloser += Spells.g;
             Interrupter.OnInterruptableSpell += Spells.i;
-            //  Game.OnWndProc += Game_OnWndProc;
-            Drawing.OnDraw += OnDraw;
         }
 
-        public static void Game_OnTick(EventArgs args)
+        private static void Game_OnTick(EventArgs args)
         {
             Spells.Start();
-        }
-
-        public static void OnDraw(EventArgs args)
-        {
         }
     }
 }

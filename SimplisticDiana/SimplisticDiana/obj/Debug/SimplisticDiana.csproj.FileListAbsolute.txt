@@ -1,5 +1,2 @@
-C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticDiana\SimplisticDiana\obj\Debug\SimplisticDiana.csprojResolveAssemblyReference.cache
-C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticDiana\SimplisticDiana\obj\Debug\SimplisticAhri.exe
-C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticDiana\SimplisticDiana\obj\Debug\SimplisticAhri.pdb
 C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticDiana\SimplisticDiana\obj\Debug\SimplisticDiana.exe
 C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticDiana\SimplisticDiana\obj\Debug\SimplisticDiana.pdb

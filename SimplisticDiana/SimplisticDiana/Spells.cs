@@ -1,4 +1,5 @@
-﻿using System;
+﻿#region
+
 using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
@@ -6,12 +7,12 @@ using EloBuddy.SDK.Enumerations;
 using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu.Values;
 
+#endregion
+
 namespace SimplisticDiana
 {
     internal class Spells
     {
-        private static SpellSlot ignite;
-
         public static readonly Spell.Skillshot SpellQ = new Spell.Skillshot(SpellSlot.Q, 830, SkillShotType.Cone, 500,
             1600, 195);
 
@@ -66,26 +67,46 @@ namespace SimplisticDiana
             {
                 return;
             }
+            Orbwalker.ForcedTarget = target;
 
-            if (Config.ComboMenu["GapKS"].Cast<CheckBox>().CurrentValue && SpellQ.IsReady() && SpellR.IsReady() && SpellE.IsReady() && target.Health < _Player.GetSpellDamage(target,SpellSlot.E) || target.Health < _Player.GetSpellDamage(target,SpellSlot.W))
+            if (Config.ComboMenu["GapKS"].Cast<CheckBox>().CurrentValue && SpellQ.IsReady() && SpellR.IsReady() &&
+                SpellE.IsReady())
             {
-                var minions = EntityManager.GetLaneMinions().Where(a => a.Distance(Player.Instance) < 1500).OrderBy(a => a.Distance(target.ServerPosition) < SpellE.Range);
-                var minion = minions.FirstOrDefault();
-                if (minion != null && SpellQ.IsInRange(minion) && minion.Distance(target.ServerPosition) < SpellE.Range)
+                if (target.Health < _Player.GetSpellDamage(target, SpellSlot.E) ||
+                    target.Health < _Player.GetSpellDamage(target, SpellSlot.W))
                 {
-                    var f = minion; // minion can change
-                    var p = SpellQ.GetPrediction(f);
-                    if (p.HitChance >= PredQ())
+                    var minions =
+                        EntityManager.GetLaneMinions()
+                            .Where(a => a.Distance(Player.Instance) < 1500)
+                            .OrderBy(a => a.Distance(target.ServerPosition) < SpellE.Range);
+                    var minion = minions.FirstOrDefault();
+                    if (minion != null && SpellQ.IsInRange(minion) &&
+                        minion.Distance(target.ServerPosition) < SpellE.Range)
                     {
-                        SpellQ.Cast(p.CastPosition);
-                        if (f.HasBuff("dianamoonlight") && f.Distance(target.ServerPosition) < SpellE.Range)
+                        var f = minion; // minion can change
+                        var p = SpellQ.GetPrediction(f);
+                        if (p.HitChance >= PredQ())
                         {
-                            SpellR.Cast(f);
-                            if (SpellE.IsInRange(target)) SpellE.Cast();
-                            if (SpellW.IsInRange(target)) SpellW.Cast();
+                            SpellQ.Cast(p.CastPosition);
+                            if (f.HasBuff("dianamoonlight") && f.Distance(target.ServerPosition) < SpellE.Range)
+                            {
+                                SpellR.Cast(f);
+                                if (SpellE.IsInRange(target)) SpellE.Cast();
+                                if (SpellW.IsInRange(target)) SpellW.Cast();
+                            }
                         }
                     }
+                }
+            }
 
+            if (SpellR.IsReady() && Config.ComboMenu["useR2"].Cast<CheckBox>().CurrentValue)
+            {
+                var e = _Player.CountEnemiesInRange(SpellQ.Range*2);
+
+                if (e <= Config.ComboMenu["useR2Count"].Cast<Slider>().CurrentValue && SpellR.IsReady() &&
+                    _Player.GetSpellDamage(target, SpellSlot.R) > target.Health)
+                {
+                    SpellR.Cast(target);
                 }
             }
 
@@ -101,17 +122,7 @@ namespace SimplisticDiana
             if (SpellR.IsReady() && Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue &&
                 target.HasBuff("dianamoonlight"))
             {
-                if (target.HasBuff("dianamoonlight"))
-                    SpellR.Cast(target);
-            }
-            else if (SpellR.IsReady() && Config.ComboMenu["useR2"].Cast<CheckBox>().CurrentValue &&
-                     Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue)
-            {
-                if (_Player.CountEnemiesInRange(SpellQ.Range * 2) <= Config.ComboMenu["useR2Count"].Cast<Slider>().CurrentValue && SpellR.IsReady() &&
-                    _Player.GetSpellDamage(target,SpellSlot.R) >= target.Health)
-                {
-                    SpellR.Cast(target);
-                }
+                SpellR.Cast(target);
             }
 
             if (SpellW.IsReady() && SpellW.IsInRange(target) && Config.ComboMenu["useW"].Cast<CheckBox>().CurrentValue)
@@ -122,17 +133,6 @@ namespace SimplisticDiana
             if (SpellE.IsReady() && SpellE.IsInRange(target) && Config.ComboMenu["useE"].Cast<CheckBox>().CurrentValue)
             {
                 SpellE.Cast();
-            }
-
-            if (SpellR.IsReady() && Config.ComboMenu["useR2"].Cast<CheckBox>().CurrentValue)
-            {
-                var e = _Player.CountEnemiesInRange(SpellQ.Range*2);
-
-                if (e <= Config.ComboMenu["useR2Count"].Cast<Slider>().CurrentValue && SpellR.IsReady() &&
-                   _Player.GetSpellDamage(target,SpellSlot.R) > target.Health)
-                {
-                    SpellR.Cast(target);
-                }
             }
 
             if (Ignite.IsInRange(target) && target.Health < 50 + 20*_Player.Level - (target.HPRegenRate/5*3) &&
@@ -198,8 +198,8 @@ namespace SimplisticDiana
                 Player.Instance.ServerPosition.To2D(), SpellE.Range);
 
             var qinrange = qminion.Where(m => SpellQ.IsInRange(m)).ToArray();
-            var winrange = qminion.Where(m => SpellW.IsInRange(m)).ToArray();
-            var einrange = qminion.Where(m => SpellE.IsInRange(m)).ToArray();
+            var winrange = wminion.Where(m => SpellW.IsInRange(m)).ToArray();
+            var einrange = eminion.Where(m => SpellE.IsInRange(m)).ToArray();
 
             if (Config.FarmMenu["qlc"].Cast<CheckBox>().CurrentValue && SpellQ.IsReady())
             {
@@ -315,7 +315,6 @@ namespace SimplisticDiana
                 Config.GapSMenu[gapcloser.SpellName].Cast<CheckBox>().CurrentValue)
             {
                 SpellW.Cast();
-
             }
 
             if (!Config.GapMenu["GapE"].Cast<CheckBox>().CurrentValue &&
@@ -323,12 +322,7 @@ namespace SimplisticDiana
                 Config.GapSMenu[gapcloser.SpellName].Cast<CheckBox>().CurrentValue)
             {
                 SpellE.Cast();
-                
             }
-
-            
-
-
         }
 
         public static void i(Obj_AI_Base s,
@@ -345,10 +339,6 @@ namespace SimplisticDiana
             {
                 SpellE.Cast();
             }
-
-           
         }
-
-       
     }
 }
