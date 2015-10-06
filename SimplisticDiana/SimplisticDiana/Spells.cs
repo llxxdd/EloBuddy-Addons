@@ -6,6 +6,7 @@ using EloBuddy.SDK;
 using EloBuddy.SDK.Enumerations;
 using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu.Values;
+using SharpDX.Direct3D9;
 
 #endregion
 
@@ -48,6 +49,8 @@ namespace SimplisticDiana
             {
                 return;
             }
+
+            Orbwalker.OrbwalkTo(Game.CursorPos);
 
             if (Config.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue &&
                 Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue && SpellQ.IsReady() && SpellR.IsReady() &&
