@@ -1,7 +1,7 @@
 nonm - EloBuddy
 ===========
 
-nonm's LeagueSharp repo. 
+nonm's EloBuddy repo. 
 
 #TOS
 
