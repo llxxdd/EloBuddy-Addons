@@ -53,7 +53,6 @@ namespace SimplisticTemplate.Champion.Fizz.Utils
             DrawMenu = Menu.AddSubMenu("Drawings", "drawings");
             DrawMenu.AddLabel("Drawing Settings");
             DrawMenu.Add("disable", new CheckBox("Disable all Drawing", false));
-            DrawMenu.Add("drawDamage", new CheckBox("Draw Damage"));
             DrawMenu.Add("drawQ", new CheckBox("Draw Q Range"));
             DrawMenu.Add("drawW", new CheckBox("Draw W Range"));
             DrawMenu.Add("drawE", new CheckBox("Draw E Range"));
