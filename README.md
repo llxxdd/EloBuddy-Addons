@@ -20,5 +20,7 @@ EloBuddy Profile: https://www.elobuddy.net/user/378-nonm/
 - Simplistic Ahri
 - Simplistic Diana
 - Simplistic Gapcloser
+- Simplistic Fizz
+- Simplistic K (bik soon :D)
 
 
