@@ -12,7 +12,7 @@ namespace SimplisticTemplate.Champion.Fizz.Modes
 {
     internal static class Harass
     {
-        public static AIHeroClient Me
+        private static AIHeroClient Me
         {
             get { return ObjectManager.Player; }
         }

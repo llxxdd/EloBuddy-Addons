@@ -46,7 +46,8 @@ namespace SimplisticTemplate.Champion.Fizz
             GameMenu.Initialize();
             Game.OnUpdate += OnGameUpdate;
             Obj_AI_Base.OnSpellCast += Misc.ObjAiBaseOnOnProcessSpellCast;
-            Drawing.OnDraw += Utils.Drawings.OnDraw;
+            Drawing.OnDraw += Drawings.OnDraw;
+            Drawing.OnEndScene += Drawings.OnDamageDraw;
         }
 
         private static void OnGameUpdate(EventArgs args)

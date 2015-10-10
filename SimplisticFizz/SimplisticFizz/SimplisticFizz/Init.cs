@@ -11,7 +11,7 @@ namespace SimplisticTemplate
 {
     internal class Init
     {
-        private static void Main(string[] args)
+        private static void Main()
         {
             // Once loading is complete we will now call Initialize()
             Loading.OnLoadingComplete += Initialize;
