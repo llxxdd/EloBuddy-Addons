@@ -332,14 +332,11 @@ namespace SimplisticAhri
             }
 
             if (Orbwalker.IsAutoAttacking && HarassMenu["waitAA"].Cast<CheckBox>().CurrentValue) return;
-            Chat.Print("1");
             if (HarassMenu["useQHarass"].Cast<CheckBox>().CurrentValue && Spells[SpellSlot.Q].IsReady() && qval)
             {
-                Chat.Print("2");
                 if (target.Distance(_Player) <= Spells[SpellSlot.Q].Range ||
                     (_Player.ManaPercent > 40 && SmartMode.CurrentValue))
                 {
-                    Chat.Print("3");
                     var predQ = Prediction.Position.PredictLinearMissile(target, Spells[SpellSlot.Q].Range, 50, 250,
                         1600, 999);
                     Spells[SpellSlot.Q].Cast(predQ.CastPosition);
@@ -444,7 +441,7 @@ namespace SimplisticAhri
             {
                 target = charmed;
             }
-            else if (ComboMenu["useCharm"].Cast<CheckBox>().CurrentValue && charmed == null && cc != null)
+            else if (ComboMenu["useCharm"].Cast<CheckBox>().CurrentValue && charmed == null && cc != null && cc.Health < ComboDamage(cc))
             {
                 target = cc;
             }
@@ -518,51 +515,17 @@ namespace SimplisticAhri
 
         private static void HandleRCombo(AIHeroClient target)
         {
-            if (Spells[SpellSlot.R].IsReady() && target.IsValidTarget())
+            var tower =
+                ObjectManager.Get<Obj_AI_Turret>()
+                    .FirstOrDefault(x => x.IsValidTarget() && x.Distance(Player.Instance) < 500);
+
+            if (target.IsValidTarget(Spells[SpellSlot.R].Range + SpellE.Range) && (SpellQ.IsReady() || SpellE.IsReady()) && ComboDamage(target) > target.Health && tower == null && target.CountEnemiesInRange(400) < 3)
             {
-                if (ComboMenu["SmartUlt"].Cast<CheckBox>().CurrentValue)
-                {
-                    if (
-                        (float) _R["EndTime"] - Game.Time <=
-                        _Player.Spellbook.GetSpell(Spells[SpellSlot.R].Slot).Cooldown)
-                    {
-                        var turret =
-                            ObjectManager.Get<Obj_AI_Turret>()
-                                .FirstOrDefault(x => !x.IsAlly && !x.IsDead && x.Distance(_Player) <= 500);
-                        var killable = ObjectManager.Get<AIHeroClient>().Where(x => !x.IsAlly && x.IsValidTarget(1000));
-                        var objAiHeroes = killable as AIHeroClient[] ?? killable.ToArray();
-
-                        if (target.IsValidTarget(Spells[SpellSlot.R].Range + SpellE.Range))
-                        {
-                            if (SpellE.IsReady(2) || SpellQ.IsReady(2))
-                            {
-                                var dmg = Damage(target, SpellSlot.E) + Damage(target, SpellSlot.Q) +
-                                          Damage(target, SpellSlot.R);
-                                if (target.Health <= dmg && turret == null)
-                                {
-                                    Spells[SpellSlot.R].Cast(mousePos);
-                                }
-
-                                foreach (
-                                    var hp in
-                                        objAiHeroes.Where(hp => Damage(hp, SpellSlot.E) + Damage(hp, SpellSlot.Q) +
-                                                                Damage(hp, SpellSlot.R) >= hp.Health))
-                                {
-                                    Spells[SpellSlot.R].Cast(mousePos);
-                                }
-                            }
-                        }
-                    }
-                }
+                Spells[SpellSlot.R].Cast(_Player.ServerPosition.Extend(Game.CursorPos, Spells[SpellSlot.R].Range).To3D());
             }
-        }
 
-
-        public static int RStacks()
-        {
-            var rBuff = ObjectManager.Player.Buffs.Find(buff => buff.Name == "AhriTumble");
-            return rBuff != null ? rBuff.Count : 0;
         }
+        
 
 
         private static void LastHit()
@@ -618,6 +581,34 @@ namespace SimplisticAhri
                 }
             }
             return _Player.GetSpellDamage(target, slot);
+        }
+
+        public static float ComboDamage(Obj_AI_Base target)
+        {
+            var damage = 0d;
+
+            if (SpellQ.IsReady(3))
+            {
+                damage += _Player.GetSpellDamage(target, SpellSlot.Q);
+            }
+
+            if (Spells[SpellSlot.W].IsReady(5))
+            {
+                damage += _Player.GetSpellDamage(target, SpellSlot.W);
+            }
+
+            if (SpellE.IsReady(2))
+            {
+                damage += _Player.GetSpellDamage(target, SpellSlot.E);
+            }
+
+            if (Spells[SpellSlot.R].IsReady(5))
+            {
+                damage += _Player.GetSpellDamage(target, SpellSlot.R);
+            }
+
+            damage += _Player.GetAutoAttackDamage(target) * 2;
+            return (float)damage;
         }
 
         private static void OnCreateObj(GameObject sender, EventArgs args)
