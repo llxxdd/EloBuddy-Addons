@@ -42,12 +42,12 @@ namespace SimplisticTemplate.Champion.Fizz.Modes
 
             if (useR && Fizz.R.IsReady())
             {
-                if (ComboDamage(target) > target.Health)
+                if (ComboDamage(target) - 30 > target.Health)
                 {
                     CastR(target, HitChance.Medium);
                 }
 
-                if (Me.GetSpellDamage(target, SpellSlot.R) >= target.Health)
+                if (Me.GetSpellDamage(target, SpellSlot.R) - 30 > target.Health)
                 {
                     CastR(target, HitChance.High);
                 }
