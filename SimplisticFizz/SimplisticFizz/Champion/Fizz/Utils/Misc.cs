@@ -34,7 +34,7 @@ namespace SimplisticTemplate.Champion.Fizz.Utils
                         (int) (sender.Spellbook.CastEndTime - Game.Time) + Game.Ping/2 + 250);
                 }
                 else if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Harass) &&
-                         GameMenu.HarassMenu["useEMode"].Cast<Slider>().CurrentValue == 1)
+                         GameMenu.HarassMenu["useEMode"].Cast<Slider>().CurrentValue == 0)
                 {
                     Core.DelayAction(() => { JumpValid = true; },
                         (int) (sender.Spellbook.CastEndTime - Game.Time) + Game.Ping/2 + 250);

@@ -69,33 +69,36 @@ namespace SimplisticTemplate.Champion.Fizz.Utils
             {
                 foreach (var ai in EntityManager.Heroes.Enemies)
                 {
-                    var drawn = 0;
-                    if (Modes.Combo.ComboDamage(ai) >= ai.Health && drawn == 0)
+                    if (ai.IsValidTarget())
                     {
-                        KillableText.Position = Drawing.WorldToScreen(ai.Position) - new Vector2(40, -40);
-                        KillableText.Color = Color.Firebrick;
-                        KillableText.TextValue = "100% Killable";
-                        KillableText.Draw();
-                        drawn = 1;
-                    }
+                        var drawn = 0;
+                        if (Modes.Combo.ComboDamage(ai) >= ai.Health && drawn == 0)
+                        {
+                            KillableText.Position = Drawing.WorldToScreen(ai.Position) - new Vector2(40, -40);
+                            KillableText.Color = Color.Firebrick;
+                            KillableText.TextValue = "100% Killable";
+                            KillableText.Draw();
+                            drawn = 1;
+                        }
 
-                    if (Modes.Combo.ComboDamage(ai) + 300 >= ai.Health && drawn == 0)
-                    {
-                        KillableText.Position = Drawing.WorldToScreen(ai.Position) - new Vector2(40, -40);
-                        KillableText.Color = Color.AntiqueWhite;
-                        KillableText.TextValue = "50% Killable - HP Left: " +
-                                                 (Math.Abs((int) ai.Health - (int) Modes.Combo.ComboDamage(ai)));
-                        KillableText.Draw();
-                        drawn = 1;
-                    }
+                        if (Modes.Combo.ComboDamage(ai) + 300 >= ai.Health && drawn == 0)
+                        {
+                            KillableText.Position = Drawing.WorldToScreen(ai.Position) - new Vector2(40, -40);
+                            KillableText.Color = Color.AntiqueWhite;
+                            KillableText.TextValue = "50% Killable - HP Left: " +
+                                                     (Math.Abs((int) ai.Health - (int) Modes.Combo.ComboDamage(ai)));
+                            KillableText.Draw();
+                            drawn = 1;
+                        }
 
-                    if (Modes.Combo.ComboDamage(ai) < ai.Health && drawn == 0)
-                    {
-                        KillableText.Position = Drawing.WorldToScreen(ai.Position) - new Vector2(40, -40);
-                        KillableText.Color = Color.ForestGreen;
-                        KillableText.TextValue = "Not Killable - HP Left: " +
-                                                 (Math.Abs((int) ai.Health - (int) Modes.Combo.ComboDamage(ai)));
-                        KillableText.Draw();
+                        if (Modes.Combo.ComboDamage(ai) < ai.Health && drawn == 0)
+                        {
+                            KillableText.Position = Drawing.WorldToScreen(ai.Position) - new Vector2(40, -40);
+                            KillableText.Color = Color.ForestGreen;
+                            KillableText.TextValue = "Not Killable - HP Left: " +
+                                                     (Math.Abs((int) ai.Health - (int) Modes.Combo.ComboDamage(ai)));
+                            KillableText.Draw();
+                        }
                     }
                 }
             }

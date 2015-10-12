@@ -29,11 +29,13 @@ namespace SimplisticTemplate.Champion.Fizz.Utils
 
             ComboMenu = Menu.AddSubMenu("Combo", "combo");
             ComboMenu.AddLabel("Combo Settings");
+            ComboMenu.Add("qrcombo", new KeyBind("Q - R Combo", false, KeyBind.BindTypes.HoldActive, 'A'));
             ComboMenu.Add("useQ", new CheckBox("Use Q"));
             ComboMenu.Add("useW", new CheckBox("Use W"));
             ComboMenu.Add("useE", new CheckBox("Use E"));
             ComboMenu.Add("useR", new CheckBox("Use R"));
-            ComboMenu.Add("useRGap", new CheckBox("Use R and then E for Gapclos if killable?"));
+            ComboMenu.Add("useEGap", new CheckBox("Use E to Gapclose and then Q if killable?"));
+            ComboMenu.Add("useRGap", new CheckBox("Use R and then E for Gapclose if killable?"));
 
             HarassMenu = Menu.AddSubMenu("Harass", "harass");
             HarassMenu.AddLabel("Harass Settings");
@@ -48,6 +50,7 @@ namespace SimplisticTemplate.Champion.Fizz.Utils
             MiscMenu.AddLabel("Misc Settings");
             MiscMenu.AddLabel("Use W : (1) Before Q (2) On Enemy");
             MiscMenu.Add("useWMode", new Slider("Use W", 0, 0, 1));
+            MiscMenu.AddSeparator();
             MiscMenu.Add("useETower", new CheckBox("Use E to dodge Tower Shots"));
 
             DrawMenu = Menu.AddSubMenu("Drawings", "drawings");

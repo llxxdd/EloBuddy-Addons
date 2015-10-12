@@ -23,6 +23,7 @@ namespace SimplisticTemplate.Champion.Fizz.Modes
             if (!target.IsValidTarget()) return;
 
             var useRGap = GameMenu.ComboMenu["useRGap"].Cast<CheckBox>().CurrentValue;
+            var useEGap = GameMenu.ComboMenu["useEGap"].Cast<CheckBox>().CurrentValue;
             var useQ = GameMenu.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
             var useW = GameMenu.ComboMenu["useW"].Cast<CheckBox>().CurrentValue;
             var useE = GameMenu.ComboMenu["useE"].Cast<CheckBox>().CurrentValue;
@@ -38,27 +39,32 @@ namespace SimplisticTemplate.Champion.Fizz.Modes
                 Fizz.E.Cast(Me.ServerPosition.Extend(target.ServerPosition, Fizz.E.Range - 1).To3D());
                 Fizz.Q.Cast(target);
                 Fizz.W.Cast();
+                return;
             }
 
-            if (useR && Fizz.R.IsReady())
+            if (useR && Fizz.R.IsReady() && Fizz.R.GetPrediction(target).HitChance > HitChance.High)
             {
                 if (ComboDamage(target) - 30 > target.Health)
                 {
-                    CastR(target, HitChance.Medium);
+                    CastR(target, HitChance.High);
                 }
 
                 if (Me.GetSpellDamage(target, SpellSlot.R) - 30 > target.Health)
                 {
                     CastR(target, HitChance.High);
+                    return;
                 }
             }
 
             if (Fizz.E.IsReady() && useE && useQ && Me.Distance(target) <= (Fizz.E.Range + 350) &&
                 Me.Mana >= Me.Spellbook.GetSpell(SpellSlot.Q).SData.Mana + Me.Spellbook.GetSpell(SpellSlot.E).SData.Mana &&
-                Fizz.Q.IsReady(2))
+                Fizz.Q.IsReady(2) && Me.GetSpellDamage(target, SpellSlot.Q) + 50 > target.Health && useEGap)
             {
                 Fizz.E.Cast(Me.ServerPosition.Extend(target.ServerPosition, Fizz.E.Range - 1).To3D());
                 Fizz.E.Cast(Me.ServerPosition.Extend(target.ServerPosition, Fizz.E.Range - 1).To3D());
+                Fizz.Q.Cast(target);
+                Fizz.W.Cast(target);
+                return;
             }
 
             if (Fizz.E.IsReady() && useE && useQ && Me.Distance(target) <= Fizz.E.Range &&
@@ -78,15 +84,46 @@ namespace SimplisticTemplate.Champion.Fizz.Modes
                 Fizz.Q.Cast(target);
             }
 
-            if (useW && useWMode == 0 && Fizz.W.IsReady() && Me.IsInAutoAttackRange(target))
+            if (useW && useWMode == 0 && Fizz.Q.IsReady(1) && Fizz.W.IsReady() &&
+                Me.Mana >= Me.Spellbook.GetSpell(SpellSlot.W).SData.Mana + Me.Spellbook.GetSpell(SpellSlot.Q).SData.Mana)
             {
+                Fizz.Q.Cast();
                 Fizz.W.Cast();
+                Fizz.E.Cast(target);
+                if (Me.GetSpellDamage(target, SpellSlot.R) > target.Health)
+                {
+                    CastR(target, HitChance.High);
+                    return;
+                }
             }
 
 
             if (useW && useWMode == 1 && Fizz.W.IsReady() && Me.IsInAutoAttackRange(target))
             {
                 Fizz.W.Cast();
+            }
+        }
+
+        public static void QRCombo()
+        {
+            Orbwalker.OrbwalkTo(Game.CursorPos);
+            var target = TargetSelector.GetTarget(Fizz.R.Range, DamageType.Magical);
+            if (!target.IsValidTarget() && !Fizz.R.IsReady(2) && !Fizz.Q.IsReady(1))
+            {
+                Execute();
+                return;
+            }
+
+            var useQ = GameMenu.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
+            var useR = GameMenu.ComboMenu["useR"].Cast<CheckBox>().CurrentValue;
+
+            if (useQ && useR && Fizz.Q.IsReady() && Fizz.Q.IsInRange(target) && useR && Fizz.R.IsReady() &&
+                target.IsValidTarget() &&
+                Me.Mana > Me.Spellbook.GetSpell(SpellSlot.R).SData.Mana + Me.Spellbook.GetSpell(SpellSlot.Q).SData.Mana)
+            {
+                Fizz.Q.Cast(target);
+                CastR(target, HitChance.High);
+                Execute();
             }
         }
 

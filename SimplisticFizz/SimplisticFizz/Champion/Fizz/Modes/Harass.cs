@@ -35,13 +35,20 @@ namespace SimplisticTemplate.Champion.Fizz.Modes
             var useWMode = GameMenu.MiscMenu["useWMode"].Cast<Slider>().CurrentValue;
             var useEMode = GameMenu.HarassMenu["useEMode"].Cast<Slider>().CurrentValue;
 
-            if (LastPos != null && Misc.JumpValid)
+            if (LastPos != null && Misc.JumpValid && useEMode == 0)
             {
                 Fizz.E.Cast((Vector3) LastPos);
             }
 
-            if (useW && useWMode == 0 && Me.IsInAutoAttackRange(target))
+            if (useW && useWMode == 1 && Me.IsInAutoAttackRange(target))
             {
+                Fizz.W.Cast();
+            }
+
+            if (useW && useWMode == 0 && Fizz.Q.IsReady(1) && Fizz.W.IsReady() &&
+                Me.Mana >= Me.Spellbook.GetSpell(SpellSlot.W).SData.Mana + Me.Spellbook.GetSpell(SpellSlot.Q).SData.Mana)
+            {
+                Fizz.Q.Cast();
                 Fizz.W.Cast();
             }
 

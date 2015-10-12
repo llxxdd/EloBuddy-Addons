@@ -4,6 +4,7 @@ using System;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Enumerations;
+using EloBuddy.SDK.Menu.Values;
 using SimplisticTemplate.Champion.Fizz.Modes;
 using SimplisticTemplate.Champion.Fizz.Utils;
 
@@ -61,6 +62,8 @@ namespace SimplisticTemplate.Champion.Fizz
                     Harass.Execute();
                     break;
             }
+
+            if (GameMenu.ComboMenu["qrcombo"].Cast<KeyBind>().CurrentValue) Combo.QRCombo();
         }
     }
 }
