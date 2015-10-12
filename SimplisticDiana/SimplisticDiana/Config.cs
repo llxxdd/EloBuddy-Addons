@@ -33,6 +33,7 @@ namespace SimplisticDiana
             ComboMenu.Add("misaya", new KeyBind("Misaya Combo (R->Q)", false, KeyBind.BindTypes.HoldActive, 'A'));
             ComboMenu.AddSeparator();
             ComboMenu.Add("GapKS", new CheckBox("Gapclose Minions to KS"));
+            ComboMenu.Add("useRBuff", new CheckBox("Wait for R Buff even when Target is killable", false));
             ComboMenu.Add("useQ", new CheckBox("Use Q"));
             ComboMenu.Add("useW", new CheckBox("Use W"));
             ComboMenu.Add("useE", new CheckBox("Use E"));
@@ -72,7 +73,7 @@ namespace SimplisticDiana
             GapMenu.Add("IntR", new CheckBox("Interrupt using R", false));
 
             GapSMenu = menu.AddSubMenu("Gapcloser Spells", "spells");
-            var enemyChampions = HeroManager.Enemies.Select(obj => obj.ChampionName).ToArray();
+            var enemyChampions = EntityManager.Heroes.Enemies.Select(obj => obj.ChampionName).ToArray();
             var ex = Gapcloser.GapCloserList.Where(s => enemyChampions.Contains(s.ChampName));
             foreach (var gap in ex)
             {

@@ -6,7 +6,6 @@ using EloBuddy.SDK;
 using EloBuddy.SDK.Enumerations;
 using EloBuddy.SDK.Events;
 using EloBuddy.SDK.Menu.Values;
-using SharpDX.Direct3D9;
 
 #endregion
 
@@ -29,6 +28,11 @@ namespace SimplisticDiana
             get { return ObjectManager.Player; }
         }
 
+        private static bool WaitforBuff
+        {
+            get { return Config.ComboMenu["useRBuff"].Cast<CheckBox>().CurrentValue; }
+        }
+
         public static void Start()
         {
             SpellQ.AllowedCollisionCount = int.MaxValue;
@@ -45,7 +49,7 @@ namespace SimplisticDiana
         private static void MisayaCombo()
         {
             var target = TargetSelector.GetTarget(1500, DamageType.Magical);
-            if (target == null || !target.IsValid())
+            if (target == null || !target.IsValidTarget())
             {
                 return;
             }
@@ -66,7 +70,7 @@ namespace SimplisticDiana
         private static void Combo()
         {
             var target = TargetSelector.GetTarget(1500, DamageType.Magical);
-            if (target == null || !target.IsValid())
+            if (target == null || !target.IsValidTarget())
             {
                 return;
             }
@@ -79,7 +83,7 @@ namespace SimplisticDiana
                     target.Health < _Player.GetSpellDamage(target, SpellSlot.W))
                 {
                     var minions =
-                        EntityManager.GetLaneMinions()
+                        EntityManager.MinionsAndMonsters.GetLaneMinions()
                             .Where(a => a.Distance(Player.Instance) < 1500)
                             .OrderBy(a => a.Distance(target.ServerPosition) < SpellE.Range);
                     var minion = minions.FirstOrDefault();
@@ -123,7 +127,7 @@ namespace SimplisticDiana
             }
 
             if (SpellR.IsReady() && Config.ComboMenu["useR"].Cast<CheckBox>().CurrentValue &&
-                target.HasBuff("dianamoonlight"))
+                (target.HasBuff("dianamoonlight") || (!WaitforBuff && ComboDamage(target) > target.Health)))
             {
                 SpellR.Cast(target);
             }
@@ -191,14 +195,14 @@ namespace SimplisticDiana
                         a.IsEnemy && a.Distance(_Player) <= _Player.AttackRange &&
                         a.Health <= _Player.GetAutoAttackDamage(a)*1.1);
 
-            var qminion = EntityManager.GetLaneMinions(EntityManager.UnitTeam.Enemy,
-                Player.Instance.ServerPosition.To2D(), SpellQ.Range);
+            var qminion = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy,
+                Player.Instance.ServerPosition, SpellQ.Range);
 
-            var wminion = EntityManager.GetLaneMinions(EntityManager.UnitTeam.Enemy,
-                Player.Instance.ServerPosition.To2D(), SpellW.Range);
+            var wminion = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy,
+                Player.Instance.ServerPosition, SpellW.Range);
 
-            var eminion = EntityManager.GetLaneMinions(EntityManager.UnitTeam.Enemy,
-                Player.Instance.ServerPosition.To2D(), SpellE.Range);
+            var eminion = EntityManager.MinionsAndMonsters.GetLaneMinions(EntityManager.UnitTeam.Enemy,
+                Player.Instance.ServerPosition, SpellE.Range);
 
             var qinrange = qminion.Where(m => SpellQ.IsInRange(m)).ToArray();
             var winrange = wminion.Where(m => SpellW.IsInRange(m)).ToArray();
@@ -242,9 +246,12 @@ namespace SimplisticDiana
         {
             if (_Player.ManaPercent <= Config.JungleMenu["Mana"].Cast<Slider>().CurrentValue) return;
 
-            var qminion = EntityManager.GetJungleMonsters(Player.Instance.ServerPosition.To2D(), SpellQ.Range);
-            var wminion = EntityManager.GetJungleMonsters(Player.Instance.ServerPosition.To2D(), SpellW.Range);
-            var eminion = EntityManager.GetJungleMonsters(Player.Instance.ServerPosition.To2D(), SpellE.Range);
+            var qminion = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Instance.ServerPosition,
+                SpellQ.Range);
+            var wminion = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Instance.ServerPosition,
+                SpellW.Range);
+            var eminion = EntityManager.MinionsAndMonsters.GetJungleMonsters(Player.Instance.ServerPosition,
+                SpellE.Range);
 
             if (Config.JungleMenu["useQ"].Cast<CheckBox>().CurrentValue && SpellQ.IsReady())
             {
@@ -309,6 +316,34 @@ namespace SimplisticDiana
                     Player.SetSkinId(2);
                     break;
             }
+        }
+
+        public static float ComboDamage(Obj_AI_Base target)
+        {
+            var damage = 0d;
+
+            if (SpellQ.IsReady(3))
+            {
+                damage += _Player.GetSpellDamage(target, SpellSlot.Q);
+            }
+
+            if (SpellW.IsReady(5))
+            {
+                damage += _Player.GetSpellDamage(target, SpellSlot.W);
+            }
+
+            if (SpellE.IsReady(2))
+            {
+                damage += _Player.GetSpellDamage(target, SpellSlot.E);
+            }
+
+            if (SpellR.IsReady(5))
+            {
+                damage += _Player.GetSpellDamage(target, SpellSlot.R);
+            }
+
+            damage += _Player.GetAutoAttackDamage(target)*2;
+            return (float) damage;
         }
 
         public static void g(AIHeroClient sender, Gapcloser.GapcloserEventArgs gapcloser)
