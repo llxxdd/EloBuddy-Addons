@@ -63,7 +63,7 @@ namespace SimplisticTemplate.Champion.Fizz.Modes
                 Fizz.E.Cast(Me.ServerPosition.Extend(target.ServerPosition, Fizz.E.Range - 1).To3D());
                 Fizz.E.Cast(Me.ServerPosition.Extend(target.ServerPosition, Fizz.E.Range - 1).To3D());
                 Fizz.Q.Cast(target);
-                Fizz.W.Cast(target);
+                Fizz.W.Cast();
                 return;
             }
 
@@ -74,9 +74,14 @@ namespace SimplisticTemplate.Champion.Fizz.Modes
                 Fizz.E.Cast(target);
             }
 
-            if (!Fizz.Q.IsReady() && useE && Fizz.E.IsReady() && Me.GetSpellDamage(target, SpellSlot.E) > target.Health)
+            if ( useE && Fizz.E.IsReady())
             {
                 Fizz.E.Cast(target);
+            }
+
+            if (useW && useWMode == 0 && Fizz.W.IsReady())
+            {
+                Fizz.W.Cast();
             }
 
             if (Fizz.Q.IsReady() && useQ)
@@ -119,10 +124,10 @@ namespace SimplisticTemplate.Champion.Fizz.Modes
 
             if (useQ && useR && Fizz.Q.IsReady() && Fizz.Q.IsInRange(target) && useR && Fizz.R.IsReady() &&
                 target.IsValidTarget() &&
-                Me.Mana > Me.Spellbook.GetSpell(SpellSlot.R).SData.Mana + Me.Spellbook.GetSpell(SpellSlot.Q).SData.Mana)
+                Me.Mana > Me.Spellbook.GetSpell(SpellSlot.R).SData.Mana + Me.Spellbook.GetSpell(SpellSlot.Q).SData.Mana && Fizz.R.GetPrediction(target).HitChance > HitChance.Medium)
             {
                 Fizz.Q.Cast(target);
-                CastR(target, HitChance.High);
+                CastR(target, HitChance.Medium);
                 Execute();
             }
         }
