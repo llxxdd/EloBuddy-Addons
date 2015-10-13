@@ -482,7 +482,7 @@ namespace SimplisticAhri
         {
             if (_Player.ManaPercent >= JungleMenu["Mana"].Cast<Slider>().CurrentValue)
             {
-                foreach (Obj_AI_Base minion in EntityManager.GetJungleMonsters(_Player.Position.To2D(), 1000f))
+                foreach (Obj_AI_Base minion in EntityManager.MinionsAndMonsters.GetJungleMonsters(_Player.Position, 1000f))
                 {
                     if (minion.IsValidTarget() && _Player.ManaPercent >= JungleMenu["Mana"].Cast<Slider>().CurrentValue)
                     {
