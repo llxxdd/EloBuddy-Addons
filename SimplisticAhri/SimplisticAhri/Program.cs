@@ -64,6 +64,7 @@ namespace SimplisticAhri
             FleeMenu,
             GapMenu,
             PredMenu,
+            DrawingMenu,
             SkinMenu;
 
         public static CheckBox SmartMode;
@@ -156,6 +157,11 @@ namespace SimplisticAhri
             GapMenu.Add("GapE", new CheckBox("Use E on Gapclosers", true));
             GapMenu.Add("IntE", new CheckBox("Use E on Interruptable Spells", true));
 
+            DrawingMenu = menu.AddSubMenu("Drawings ", "drawings");
+            DrawingMenu.Add("drawQ", new CheckBox("Draw Q Range", true));
+            DrawingMenu.Add("drawE", new CheckBox("Draw E Range", true));
+     
+
 
             PredMenu = menu.AddSubMenu("Prediction", "pred");
 
@@ -229,7 +235,7 @@ namespace SimplisticAhri
 
         private static void Gapcloser_OnGapCloser(AIHeroClient sender, Gapcloser.GapcloserEventArgs gapcloser)
         {
-            if (!GapMenu["GapE"].Cast<CheckBox>().CurrentValue) return;
+            if (!GapMenu["GapE"].Cast<CheckBox>().CurrentValue && !sender.IsValidTarget()) return;
             if (ObjectManager.Player.Distance(gapcloser.Sender, true) <
                 Spells[SpellSlot.E].Range*Spells[SpellSlot.E].Range && sender.IsValidTarget())
             {
@@ -243,12 +249,23 @@ namespace SimplisticAhri
             {
                 Drawing.DrawCircle(selectedHero.Position, Spells[SpellSlot.W].Range, System.Drawing.Color.Red);
             }
+
+            if (SpellQ.IsReady() && DrawingMenu["drawQ"].Cast<CheckBox>().CurrentValue)
+            {
+                Drawing.DrawCircle(_Player.Position, SpellQ.Range, System.Drawing.Color.BlanchedAlmond);
+            }
+
+            if (SpellE.IsReady() && DrawingMenu["drawE"].Cast<CheckBox>().CurrentValue)
+            {
+                Drawing.DrawCircle(_Player.Position, SpellE.Range, System.Drawing.Color.Brown);
+            }
+
         }
 
         private static void Interrupter_OnInterruptableSpell(Obj_AI_Base sender,
             Interrupter.InterruptableSpellEventArgs args)
         {
-            if (!GapMenu["IntE"].Cast<CheckBox>().CurrentValue) return;
+            if (!GapMenu["IntE"].Cast<CheckBox>().CurrentValue && !sender.IsValidTarget()) return;
 
             if (ObjectManager.Player.Distance(sender, true) < Spells[SpellSlot.E].Range*Spells[SpellSlot.E].Range)
             {
@@ -277,6 +294,7 @@ namespace SimplisticAhri
             if (KillStealMenu["useKS"].Cast<CheckBox>().CurrentValue)
             {
                 var kstarget = TargetSelector.GetTarget(2500, DamageType.Magical);
+                if (!kstarget.IsValidTarget() || kstarget == null) return;
 
                 if (kstarget.IsValidTarget(Spells[SpellSlot.E].Range) && kstarget.HealthPercent <= 40)
                 {
@@ -378,7 +396,7 @@ namespace SimplisticAhri
                 return;
             }
             selectedHero =
-                HeroManager.Enemies
+                EntityManager.Heroes.Enemies
                     .FindAll(hero => hero.IsValidTarget() && hero.Distance(Game.CursorPos, true) < 40000) // 200 * 200
                     .OrderBy(h => h.Distance(Game.CursorPos, true)).FirstOrDefault();
         }
@@ -392,7 +410,7 @@ namespace SimplisticAhri
                 target = selectedHero;  
             }
 
-            if (target == null || !target.IsValid())
+            if (target == null || !target.IsValidTarget() || target.IsAlly)
             {
                 return;
             }
@@ -427,21 +445,21 @@ namespace SimplisticAhri
         public static void Combo()
         {
             var target = TargetSelector.GetTarget(1550, DamageType.Magical);
-            var charmed = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Charm));
-            var cc = HeroManager.Enemies.Find(h => h.HasBuffOfType(BuffType.Fear));
+            var charmed = EntityManager.Heroes.Enemies.Find(h => h.HasBuffOfType(BuffType.Charm));
+            var cc = EntityManager.Heroes.Enemies.Find(h => h.HasBuffOfType(BuffType.Fear));
 
-            if (target == null || !target.IsValid())
+            if (target == null || !target.IsValidTarget() || target.IsAlly)
             {
                 return;
             }
 
             if (Orbwalker.IsAutoAttacking && HarassMenu["waitAA"].Cast<CheckBox>().CurrentValue) return;
 
-            if (ComboMenu["useCharm"].Cast<CheckBox>().CurrentValue && charmed != null)
+            if (ComboMenu["useCharm"].Cast<CheckBox>().CurrentValue && charmed != null && charmed.IsValidTarget())
             {
                 target = charmed;
             }
-            else if (ComboMenu["useCharm"].Cast<CheckBox>().CurrentValue && charmed == null && cc != null && cc.Health < ComboDamage(cc))
+            else if (ComboMenu["useCharm"].Cast<CheckBox>().CurrentValue && charmed == null && cc != null && cc.Health < ComboDamage(cc) && cc.IsValidTarget())
             {
                 target = cc;
             }
@@ -609,59 +627,6 @@ namespace SimplisticAhri
 
             damage += _Player.GetAutoAttackDamage(target) * 2;
             return (float)damage;
-        }
-
-        private static void OnCreateObj(GameObject sender, EventArgs args)
-        {
-            var missile = (MissileClient) sender;
-            if (missile == null || !missile.IsValid || missile.SpellCaster == null || !missile.SpellCaster.IsValid)
-            {
-                return;
-            }
-            var unit = missile.SpellCaster;
-            if (missile.SpellCaster.IsMe)
-            {
-                var name = missile.SData.Name.ToLower();
-                if (name.Contains("ahriorbmissile"))
-                {
-                    _Q["Object"] = sender;
-                    _Q["IsReturning"] = false;
-                }
-                else if (name.Contains("ahriorbreturn"))
-                {
-                    _Q["Object"] = sender;
-                    _Q["IsReturning"] = true;
-                }
-                else if (name.Contains("ahriseducemissile"))
-                {
-                    _E["Object"] = sender;
-                }
-            }
-        }
-
-        private static void OnDeleteObj(GameObject sender, EventArgs args)
-        {
-            var missile = (MissileClient) sender;
-            if (missile == null || !missile.IsValid || missile.SpellCaster == null || !missile.SpellCaster.IsValid)
-            {
-                return;
-            }
-            var unit = missile.SpellCaster;
-            if (missile.SpellCaster.IsMe)
-            {
-                var name = missile.SData.Name.ToLower();
-                if (name.Contains("ahriorbreturn"))
-                {
-                    _Q["Object"] = null;
-                    _Q["IsReturning"] = false;
-                    _Q["Target"] = null;
-                    _Q["LastObjectVector"] = null;
-                }
-                else if (name.Contains("ahriseducemissile"))
-                {
-                    _E["Object"] = null;
-                }
-            }
         }
 
         private static HitChance PredQ()
