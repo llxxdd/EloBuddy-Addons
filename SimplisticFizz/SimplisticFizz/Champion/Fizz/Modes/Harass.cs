@@ -17,7 +17,7 @@ namespace SimplisticTemplate.Champion.Fizz.Modes
             get { return ObjectManager.Player; }
         }
 
-        public static Vector3? LastPos { get; set; }
+        public static Vector3? LastPos { private get; set; }
 
         public static void Execute()
         {

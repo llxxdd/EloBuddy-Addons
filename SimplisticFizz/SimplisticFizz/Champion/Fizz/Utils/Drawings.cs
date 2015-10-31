@@ -17,7 +17,7 @@ namespace SimplisticTemplate.Champion.Fizz.Utils
         private static readonly Text KillableText = new Text("",
             new System.Drawing.Font(System.Drawing.FontFamily.GenericSansSerif, 9, System.Drawing.FontStyle.Bold));
 
-        public static AIHeroClient Me
+        private static AIHeroClient Me
         {
             get { return ObjectManager.Player; }
         }

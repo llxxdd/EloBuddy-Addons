@@ -30,7 +30,7 @@ namespace SimplisticTemplate.Champion.Fizz
             InitMisc();
         }
 
-        public static void InitSpells()
+        private static void InitSpells()
         {
             Q = new Spell.Targeted(SpellSlot.Q, 550);
             W = new Spell.Active(SpellSlot.W, (uint) ObjectManager.Player.GetAutoAttackRange());

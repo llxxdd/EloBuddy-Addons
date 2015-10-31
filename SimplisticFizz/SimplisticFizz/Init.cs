@@ -9,7 +9,7 @@ using SimplisticTemplate.Champion.Fizz;
 
 namespace SimplisticTemplate
 {
-    internal class Init
+    internal static class Init
     {
         private static void Main()
         {

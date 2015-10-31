@@ -9,9 +9,9 @@ using SimplisticTemplate.Champion.Fizz.Modes;
 
 namespace SimplisticTemplate.Champion.Fizz.Utils
 {
-    internal class Misc
+    internal static class Misc
     {
-        public static bool JumpValid { get; set; }
+        public static bool JumpValid { get; private set; }
 
         public static void ObjAiBaseOnOnProcessSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
         {

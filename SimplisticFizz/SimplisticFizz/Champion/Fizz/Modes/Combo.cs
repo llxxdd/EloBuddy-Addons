@@ -74,7 +74,7 @@ namespace SimplisticTemplate.Champion.Fizz.Modes
                 Fizz.E.Cast(target);
             }
 
-            if ( useE && Fizz.E.IsReady())
+            if (useE && Fizz.E.IsReady())
             {
                 Fizz.E.Cast(target);
             }
@@ -109,6 +109,7 @@ namespace SimplisticTemplate.Champion.Fizz.Modes
             }
         }
 
+        // ReSharper disable once InconsistentNaming
         public static void QRCombo()
         {
             Orbwalker.OrbwalkTo(Game.CursorPos);
@@ -122,9 +123,10 @@ namespace SimplisticTemplate.Champion.Fizz.Modes
             var useQ = GameMenu.ComboMenu["useQ"].Cast<CheckBox>().CurrentValue;
             var useR = GameMenu.ComboMenu["useR"].Cast<CheckBox>().CurrentValue;
 
-            if (useQ && useR && Fizz.Q.IsReady() && Fizz.Q.IsInRange(target) && useR && Fizz.R.IsReady() &&
+            if (useQ && useR && Fizz.Q.IsReady() && Fizz.Q.IsInRange(target) && Fizz.R.IsReady() &&
                 target.IsValidTarget() &&
-                Me.Mana > Me.Spellbook.GetSpell(SpellSlot.R).SData.Mana + Me.Spellbook.GetSpell(SpellSlot.Q).SData.Mana && Fizz.R.GetPrediction(target).HitChance > HitChance.Medium)
+                Me.Mana > Me.Spellbook.GetSpell(SpellSlot.R).SData.Mana + Me.Spellbook.GetSpell(SpellSlot.Q).SData.Mana &&
+                Fizz.R.GetPrediction(target).HitChance > HitChance.Medium)
             {
                 Fizz.Q.Cast(target);
                 CastR(target, HitChance.Medium);
@@ -137,7 +139,7 @@ namespace SimplisticTemplate.Champion.Fizz.Modes
             if (Fizz.R.GetPrediction(target).HitChance >= h)
             {
                 var pred = Fizz.R.GetPrediction(target).CastPosition;
-                Fizz.R.Cast((Me.ServerPosition.Extend(pred, Fizz.R.Range).To3D()));
+                Fizz.R.Cast(pred);
             }
         }
 
