@@ -15,7 +15,7 @@ namespace SimplisticTemplate.Champion.Diana.Modes
         // ReSharper disable once RedundantJumpStatement
         public static void ExecuteLaneClear()
         {
-            Chat.Print(1);
+
             if (!GameMenu.FarmingMenu["useFarm"].Cast<KeyBind>().CurrentValue) return;
             var useQ = GameMenu.FarmingMenu["useQ"].Cast<CheckBox>().CurrentValue;
             var useQCount = GameMenu.FarmingMenu["useQCount"].Cast<Slider>().CurrentValue;
