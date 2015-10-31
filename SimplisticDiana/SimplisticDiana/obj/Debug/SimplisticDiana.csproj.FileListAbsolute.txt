@@ -19,7 +19,6 @@ C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticDiana\SimplisticDiana\bin\Debu
 C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticDiana\SimplisticDiana\bin\Debug\SharpDX.Direct3D9.dll
 C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticDiana\SimplisticDiana\bin\Debug\SharpDX.dll
 C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticDiana\SimplisticDiana\bin\Debug\Newtonsoft.Json.dll
-C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticDiana\SimplisticDiana\obj\Debug\SimplisticDiana.csprojResolveAssemblyReference.cache
 C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticDianaALPHA\SimplisticDiana\bin\Debug\SimplisticTemplate.exe.config
 C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticDianaALPHA\SimplisticDiana\obj\Debug\SimplisticTemplate.exe
 C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticDianaALPHA\SimplisticDiana\obj\Debug\SimplisticTemplate.pdb

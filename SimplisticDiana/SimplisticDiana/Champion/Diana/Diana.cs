@@ -60,17 +60,19 @@ namespace SimplisticTemplate.Champion.Diana
                     Harass.Execute();
                     break;
                 case Orbwalker.ActiveModes.LaneClear:
-                    Chat.Print("Called");
                     Farming.ExecuteLaneClear();
                     break;
                 case Orbwalker.ActiveModes.JungleClear:
                     Farming.ExecuteJungleClear();
                     break;
-                default:
-                    Chat.Print(Orbwalker.ActiveModesFlags);
-                    break;
             }
 
+            if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.LaneClear) &&
+                Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.JungleClear))
+            {
+                Farming.ExecuteLaneClear();
+                Farming.ExecuteJungleClear();
+            }
             if (GameMenu.ComboMenu["misayacombo"].Cast<KeyBind>().CurrentValue) Combo.MisayaCombo();
         }
     }
