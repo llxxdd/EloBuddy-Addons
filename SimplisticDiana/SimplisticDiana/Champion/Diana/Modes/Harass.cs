@@ -21,8 +21,9 @@ namespace SimplisticTemplate.Champion.Diana.Modes
             var useW = GameMenu.ComboMenu["useW"].Cast<CheckBox>().CurrentValue;
             var useE = GameMenu.ComboMenu["useE"].Cast<CheckBox>().CurrentValue;
 
-            if (Diana.Q.IsReady() && useQ && Diana.Q.GetPrediction(target).HitChance > HitChance.High &&
-                Diana.Q.IsInRange(target))
+            if (Diana.Q.IsReady() && useQ &&
+                Diana.Q.IsInRange(target) && Diana.Q.GetPrediction(target).HitChance >= HitChance.High)
+
             {
                 var pos = Diana.Q.GetPrediction(target).CastPosition;
                 Diana.Q.Cast(pos);

@@ -1,5 +1,6 @@
 ﻿#region
 
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EloBuddy;
 using EloBuddy.SDK;
@@ -23,7 +24,6 @@ namespace SimplisticTemplate.Champion.Diana.Modes
         {
             var target = TargetSelector.GetTarget(Diana.Q.Range, DamageType.Magical);
             if (!target.IsValidTarget()) return;
-
             var useRGap = GameMenu.ComboMenu["useRGap"].Cast<CheckBox>().CurrentValue;
             var useRKS = GameMenu.ComboMenu["useRKS"].Cast<CheckBox>().CurrentValue;
             var useRnoBuff = GameMenu.ComboMenu["useRKS"].Cast<CheckBox>().CurrentValue;
@@ -31,58 +31,51 @@ namespace SimplisticTemplate.Champion.Diana.Modes
             var useW = GameMenu.ComboMenu["useW"].Cast<CheckBox>().CurrentValue;
             var useE = GameMenu.ComboMenu["useE"].Cast<CheckBox>().CurrentValue;
             var useR = GameMenu.ComboMenu["useR"].Cast<CheckBox>().CurrentValue;
-            var useRMax = GameMenu.ComboMenu["useWMode"].Cast<Slider>().CurrentValue;
-            var hasManaE = Me.Mana >= Me.Spellbook.GetSpell(SpellSlot.E).SData.Mana;
-            var hasManaW = Me.Mana >= Me.Spellbook.GetSpell(SpellSlot.W).SData.Mana;
+            var useRMax = GameMenu.ComboMenu["useRMax"].Cast<Slider>().CurrentValue;
+            var hasManaR = Me.Mana >= Me.Spellbook.GetSpell(SpellSlot.R).SData.Mana;
             var hasManaQ = Me.Mana >= Me.Spellbook.GetSpell(SpellSlot.Q).SData.Mana;
 
-
-            var targetGap = TargetSelector.GetTarget(Diana.Q.Range + Diana.R.Range, DamageType.Magical);
-            if (Diana.R.IsReady() && useR && useRGap &&
-                (targetGap.Health < Me.GetSpellDamage(targetGap, SpellSlot.E) +
-                 Me.GetSpellDamage(targetGap, SpellSlot.W) +
-                 Me.GetSpellDamage(targetGap, SpellSlot.Q)) && (hasManaE || hasManaW || hasManaQ) &&
-                targetGap.IsValidTarget())
+            var targetGap = TargetSelector.GetTarget(2000, DamageType.Magical);
+            if (targetGap.IsValidTarget() && Diana.R.IsReady() && Diana.Q.IsReady() && useRGap &&
+                Me.GetSpellDamage(targetGap, SpellSlot.Q) >= targetGap.Health && hasManaQ && hasManaR &&
+                targetGap.Distance(Me.Position) > Diana.Q.Range)
             {
                 var minions =
                     EntityManager.MinionsAndMonsters.GetLaneMinions()
-                        .Where(a => a.Distance(Player.Instance) < Diana.Q.Range + Diana.R.Range)
-                        .OrderBy(a => a.Distance(targetGap.ServerPosition) < Diana.E.Range);
-                var minion = minions.FirstOrDefault();
-                if (minion != null && Diana.R.IsInRange(minion) &&
-                    minion.Distance(target.ServerPosition) < Diana.Q.Range)
+                        .Where(
+                            a =>
+                                a.Distance(targetGap.ServerPosition) < Diana.Q.Range &&
+                                a.Distance(Me.Position) < Diana.R.Range)
+                        .OrderBy(a => a.Distance(targetGap.ServerPosition))
+                        .FirstOrDefault();
+                // ReSharper disable once PossibleNullReferenceException
+                if (!minions.IsValidTarget() || !Diana.R.IsInRange(minions) ||
+                    targetGap.Distance(minions.ServerPosition) >= Diana.Q.Range || !Diana.Q.IsReady() ||
+                    !Diana.R.IsReady()) return;
+
+                Diana.R.Cast(minions);
+
+                if (Diana.Q.IsReady() && useQ &&
+                    Diana.Q.IsInRange(target) && Diana.Q.GetPrediction(target).HitChance >= HitChance.High)
+
                 {
-                    Diana.R.Cast(minion);
-
-
-                    if (Diana.Q.IsReady() && useQ && Diana.Q.GetPrediction(target).HitChance > HitChance.High &&
-                        Diana.Q.IsInRange(target))
-                    {
-                        var pos = Diana.Q.GetPrediction(target).CastPosition;
-                        Diana.Q.Cast(pos);
-                    }
-
-                    if (useW && Diana.W.IsReady() && Diana.W.IsInRange(target))
-                    {
-                        Diana.W.Cast();
-                    }
-
-                    if (useE && Diana.E.IsReady() && Diana.E.IsInRange(target))
-                    {
-                        Diana.E.Cast();
-                    }
+                    var pos = Diana.Q.GetPrediction(target).CastPosition;
+                    Diana.Q.Cast(pos);
+                    return;
                 }
             }
 
-            if (Diana.R.IsReady() && useRKS && target.CountEnemiesInRange(Diana.Q.Range) <= useRMax ||
-                (Diana.R.IsReady() && useRnoBuff && ComboDamage(target) > target.Health) ||
-                (Diana.R.IsReady() && target.HasBuff("dianamoonlight")) && Diana.R.IsInRange(target))
+            if ((Diana.R.IsReady() && target.HasBuff("dianamoonlight") && Diana.R.IsInRange(target)) ||
+                (Diana.R.IsReady() && useRKS && target.CountEnemiesInRange(Diana.Q.Range) <= useRMax &&
+                 Me.GetSpellDamage(target, SpellSlot.R) - 20 > target.Health) ||
+                (Diana.R.IsReady() && useRnoBuff && ComboDamage(target) - 100 > target.Health + 50) && useR)
             {
                 Diana.R.Cast(target);
             }
 
-            if (Diana.Q.IsReady() && useQ && Diana.Q.GetPrediction(target).HitChance > HitChance.High &&
-                Diana.Q.IsInRange(target))
+            if (Diana.Q.IsReady() && useQ &&
+                Diana.Q.IsInRange(target) && Diana.Q.GetPrediction(target).HitChance >= HitChance.High)
+
             {
                 var pos = Diana.Q.GetPrediction(target).CastPosition;
                 Diana.Q.Cast(pos);
@@ -99,6 +92,7 @@ namespace SimplisticTemplate.Champion.Diana.Modes
             }
         }
 
+        [SuppressMessage("ReSharper", "InvertIf")]
         public static void MisayaCombo()
         {
             Orbwalker.OrbwalkTo(Game.CursorPos);
@@ -114,10 +108,13 @@ namespace SimplisticTemplate.Champion.Diana.Modes
             if (Diana.R.IsInRange(target)) Diana.R.Cast(target);
             if (Diana.W.IsInRange(target) && Diana.E.IsReady()) Diana.W.Cast(target);
             if (Diana.E.IsInRange(target) && Diana.E.IsReady()) Diana.E.Cast(target);
-            if (Diana.Q.GetPrediction(target).HitChance < HitChance.Medium && !Diana.Q.IsInRange(target)) return;
+            if (Diana.Q.IsReady() &&
+                Diana.Q.IsInRange(target) && Diana.Q.GetPrediction(target).HitChance >= HitChance.Medium)
 
-            var pos = Diana.Q.GetPrediction(target).CastPosition;
-            Diana.Q.Cast(pos);
+            {
+                var pos = Diana.Q.GetPrediction(target).CastPosition;
+                Diana.Q.Cast(pos);
+            }
         }
 
         public static float ComboDamage(Obj_AI_Base target)
@@ -144,7 +141,15 @@ namespace SimplisticTemplate.Champion.Diana.Modes
                 damage += Me.GetSpellDamage(target, SpellSlot.R);
             }
 
-            damage += Me.GetAutoAttackDamage(target)*2;
+            if (Me.Health > Me.GetAutoAttackDamage(target)*4)
+            {
+                damage += Me.GetAutoAttackDamage(target)*4;
+            }
+            else
+            {
+                damage += Me.GetAutoAttackDamage(target)*2;
+            }
+
             return (float) damage;
         }
     }

@@ -52,11 +52,12 @@ namespace SimplisticTemplate.Champion.Diana.Utils
             FarmingMenu = _menu.AddSubMenu("Farming", "farming");
             FarmingMenu.AddLabel("LaneClear and JungleClear Settings");
             FarmingMenu.Add("useFarm",
-                new KeyBind("Turn on LaneClear with Spells", true, KeyBind.BindTypes.PressToggle, 0x04));
-            FarmingMenu.Add("useJungle", new CheckBox("LaneClear enabled"));
+                new KeyBind("Turn on LaneClear with Spells", true, KeyBind.BindTypes.PressToggle, 'H'));
+            FarmingMenu.Add("useJungle", new CheckBox("JungleClear enabled"));
             FarmingMenu.Add("useQ", new CheckBox("Use Q"));
             FarmingMenu.Add("useW", new CheckBox("Use W"));
             FarmingMenu.Add("useE", new CheckBox("Use E"));
+            FarmingMenu.Add("useQCount", new Slider("Min Minions Hit by Q", 2, 1, 10));
 
             DrawMenu = _menu.AddSubMenu("Drawings", "drawings");
             DrawMenu.AddLabel("Drawing Settings");

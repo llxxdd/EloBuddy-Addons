@@ -64,8 +64,22 @@ namespace SimplisticTemplate.Champion.Diana.Utils
         {
             var disable = GameMenu.DrawMenu["disable"].Cast<CheckBox>().CurrentValue;
             var drawDamage = GameMenu.DrawMenu["drawDamage"].Cast<CheckBox>().CurrentValue;
+            var useFarm = GameMenu.FarmingMenu["useFarm"].Cast<KeyBind>().CurrentValue;
             if (disable) return;
-
+            if (useFarm)
+            {
+                KillableText.Position = Drawing.WorldToScreen(Me.Position) - new Vector2(40, -40);
+                KillableText.Color = Color.DarkGreen;
+                KillableText.TextValue = "Spell Farming Enabled";
+                KillableText.Draw();
+            }
+            else
+            {
+                KillableText.Position = Drawing.WorldToScreen(Me.Position) - new Vector2(40, -40);
+                KillableText.Color = Color.Firebrick;
+                KillableText.TextValue = "Spell Farming Disabled";
+                KillableText.Draw();
+            }
             if (drawDamage)
             {
                 foreach (var ai in EntityManager.Heroes.Enemies)
@@ -92,7 +106,7 @@ namespace SimplisticTemplate.Champion.Diana.Utils
                             drawn = 1;
                         }
 
-                        if (Modes.Combo.ComboDamage(ai) < ai.Health && drawn == 0)
+                        if (Modes.Combo.ComboDamage(ai) < ai.Health - 100 && drawn == 0)
                         {
                             KillableText.Position = Drawing.WorldToScreen(ai.Position) - new Vector2(40, -40);
                             KillableText.Color = Color.ForestGreen;

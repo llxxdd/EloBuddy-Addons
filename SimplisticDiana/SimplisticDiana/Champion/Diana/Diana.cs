@@ -60,10 +60,14 @@ namespace SimplisticTemplate.Champion.Diana
                     Harass.Execute();
                     break;
                 case Orbwalker.ActiveModes.LaneClear:
+                    Chat.Print("Called");
                     Farming.ExecuteLaneClear();
                     break;
                 case Orbwalker.ActiveModes.JungleClear:
                     Farming.ExecuteJungleClear();
+                    break;
+                default:
+                    Chat.Print(Orbwalker.ActiveModesFlags);
                     break;
             }
 
