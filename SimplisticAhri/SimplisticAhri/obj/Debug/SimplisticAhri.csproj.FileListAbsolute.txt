@@ -11,3 +11,12 @@ C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticAhri\SimplisticAhri\obj\Debug\
 C:\Users\Desktop\Elobuddy\SimplisticAhri.exe.config
 C:\Users\Desktop\Elobuddy\SimplisticAhri.exe
 C:\Users\Desktop\Elobuddy\SimplisticAhri.pdb
+C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticAhri\SimplisticAhri\SimplisticAhri.exe.config
+C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticAhri\SimplisticAhri\SimplisticAhri.exe
+C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticAhri\SimplisticAhri\SimplisticAhri.pdb
+C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticAhri\SimplisticAhri\EloBuddy.dll
+C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticAhri\SimplisticAhri\EloBuddy.SDK.dll
+C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticAhri\SimplisticAhri\SharpDX.dll
+C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticAhri\SimplisticAhri\SharpDX.Direct3D9.dll
+C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticAhri\SimplisticAhri\Newtonsoft.Json.dll
+C:\Users\Noor\Documents\EloBuddy-Addons\SimplisticAhri\SimplisticAhri\obj\Debug\SimplisticAhri.csprojResolveAssemblyReference.cache
