@@ -33,8 +33,8 @@ namespace SimplisticTemplate.Champion.Diana
         private static void InitSpells()
         {
             Q = new Spell.Skillshot(SpellSlot.Q, 830, SkillShotType.Cone, 500, 1600, 195);
-            W = new Spell.Active(SpellSlot.E, 350);
-            E = new Spell.Active(SpellSlot.W, 200);
+            W = new Spell.Active(SpellSlot.W, 350);
+            E = new Spell.Active(SpellSlot.E, 200);
             R = new Spell.Targeted(SpellSlot.R, 825);
             Q.AllowedCollisionCount = int.MaxValue;
 

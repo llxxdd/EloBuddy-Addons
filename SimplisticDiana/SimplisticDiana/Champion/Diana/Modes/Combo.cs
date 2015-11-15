@@ -65,10 +65,10 @@ namespace SimplisticTemplate.Champion.Diana.Modes
                 }
             }
 
-            if ((Diana.R.IsReady() && target.HasBuff("dianamoonlight") && Diana.R.IsInRange(target)) ||
+            if (useR && Diana.R.IsReady() && target.HasBuff("dianamoonlight") && Diana.R.IsInRange(target) ||
                 (Diana.R.IsReady() && useRKS && target.CountEnemiesInRange(Diana.Q.Range) <= useRMax &&
                  Me.GetSpellDamage(target, SpellSlot.R) - 20 > target.Health) ||
-                (Diana.R.IsReady() && useRnoBuff && ComboDamage(target) - 100 > target.Health + 50) && useR)
+                (Diana.R.IsReady() && useRnoBuff && ComboDamage(target) - 100 > target.Health + 50))
             {
                 Diana.R.Cast(target);
             }

@@ -1,11 +1,13 @@
 ﻿#region
 
 using System;
+using System.Drawing;
 using EloBuddy;
 using EloBuddy.SDK;
 using EloBuddy.SDK.Menu.Values;
 using EloBuddy.SDK.Rendering;
 using SharpDX;
+using SimplisticTemplate.Champion.Diana.Modes;
 using Color = System.Drawing.Color;
 
 #endregion
@@ -15,7 +17,7 @@ namespace SimplisticTemplate.Champion.Diana.Utils
     internal static class Drawings
     {
         private static readonly Text KillableText = new Text("",
-            new System.Drawing.Font(System.Drawing.FontFamily.GenericSansSerif, 9, System.Drawing.FontStyle.Bold));
+            new Font(FontFamily.GenericSansSerif, 9, FontStyle.Bold));
 
         private static AIHeroClient Me
         {
@@ -87,7 +89,7 @@ namespace SimplisticTemplate.Champion.Diana.Utils
                     if (ai.IsValidTarget())
                     {
                         var drawn = 0;
-                        if (Modes.Combo.ComboDamage(ai) >= ai.Health && drawn == 0)
+                        if (Combo.ComboDamage(ai) >= ai.Health && drawn == 0)
                         {
                             KillableText.Position = Drawing.WorldToScreen(ai.Position) - new Vector2(40, -40);
                             KillableText.Color = Color.Firebrick;
@@ -96,22 +98,22 @@ namespace SimplisticTemplate.Champion.Diana.Utils
                             drawn = 1;
                         }
 
-                        if (Modes.Combo.ComboDamage(ai) + 300 >= ai.Health && drawn == 0)
+                        if (Combo.ComboDamage(ai) + 300 >= ai.Health && drawn == 0)
                         {
                             KillableText.Position = Drawing.WorldToScreen(ai.Position) - new Vector2(40, -40);
                             KillableText.Color = Color.AntiqueWhite;
                             KillableText.TextValue = "50% Killable - HP Left: " +
-                                                     (Math.Abs((int) ai.Health - (int) Modes.Combo.ComboDamage(ai)));
+                                                     Math.Abs((int) ai.Health - (int) Combo.ComboDamage(ai));
                             KillableText.Draw();
                             drawn = 1;
                         }
 
-                        if (Modes.Combo.ComboDamage(ai) < ai.Health - 100 && drawn == 0)
+                        if (Combo.ComboDamage(ai) < ai.Health - 100 && drawn == 0)
                         {
                             KillableText.Position = Drawing.WorldToScreen(ai.Position) - new Vector2(40, -40);
                             KillableText.Color = Color.ForestGreen;
                             KillableText.TextValue = "Not Killable - HP Left: " +
-                                                     (Math.Abs((int) ai.Health - (int) Modes.Combo.ComboDamage(ai)));
+                                                     Math.Abs((int) ai.Health - (int) Combo.ComboDamage(ai));
                             KillableText.Draw();
                         }
                     }
