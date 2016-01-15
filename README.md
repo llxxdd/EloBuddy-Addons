@@ -12,7 +12,7 @@ Thanks for reading this load of bullshit, now off to serious stuff:
 
 #Profile
 
-EloBuddy Profile: https://www.elobuddy.net/user/378-nonm/
+EloBuddy Profile: https://www.elobuddy.net/user/378-necronomicon/
 
 
 #List of assemblies:
