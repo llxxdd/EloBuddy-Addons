@@ -1,7 +1,7 @@
-nonm - EloBuddy
+Necronomicon - EloBuddy
 ===========
 
-nonm's EloBuddy repo. 
+Necronomicon's EloBuddy repo. 
 
 #TOS
 
